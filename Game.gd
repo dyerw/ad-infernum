@@ -57,6 +57,7 @@ func get_vector_path(from: Vector2, to: Vector2) -> PoolVector2Array:
 	var v2_array = PoolVector2Array([])
 	for v3 in v3_array:
 		v2_array.append(Vector2(v3.x, v3.y))
+	v2_array.remove(0) # First position is the entities position, we don't need that
 	return v2_array
 
 func delete_movement_path() -> void:
@@ -65,13 +66,15 @@ func delete_movement_path() -> void:
 	_path_tile_indicator_ponts = PoolVector2Array([])
 	_path_tile_indicators = []
 
-func redraw_movement_path(path: PoolVector2Array) -> void:
+func redraw_movement_path(path: PoolVector2Array, distance: int) -> void:
 	delete_movement_path()
-	for point in path:
-		var p = TileIndicator.instance()
-		p.init(point.x, point.y)
-		add_child(p)
-		_path_tile_indicators.push_back(p)
+	for i in range(path.size()):
+		if i < distance:
+			var point = path[i]
+			var p = TileIndicator.instance()
+			p.init(point.x, point.y)
+			add_child(p)
+			_path_tile_indicators.push_back(p)
 
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
@@ -83,22 +86,23 @@ func _unhandled_input(event):
 			)
 			if not path == _path_tile_indicator_ponts:
 				_path_tile_indicator_ponts = path
-				redraw_movement_path(path)
+				redraw_movement_path(path, selected_entity.current_movement_points)
 	
 	if event is InputEventMouseButton \
     and event.button_index == BUTTON_LEFT \
     and event.is_pressed():
 		var map_position = DungeonMap.world_to_map(event.position)
-		if selected_entity and not is_entity_at_position(map_position):
+		if selected_entity and not is_entity_at_position(map_position) \
+		and MapGenUtil.is_passable(map[map_position.x][map_position.y]):
 			get_tree().set_input_as_handled()
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
-			selected_entity.move(map_position.x, map_position.y)
+			selected_entity.move_along_path(path)
 			selected_entity = null
 			delete_movement_path()
 
 func _add_player_unit(x, y):
 	var e = Entity.instance()
-	e.init(x, y)
+	e.init(x, y, 10)
 	add_child(e)
 	return e
 
