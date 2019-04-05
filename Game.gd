@@ -90,10 +90,11 @@ func _unhandled_input(event):
     and event.is_pressed():
 		var map_position = DungeonMap.world_to_map(event.position)
 		if selected_entity and not is_entity_at_position(map_position):
+			get_tree().set_input_as_handled()
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
 			selected_entity.move(map_position.x, map_position.y)
-			delete_movement_path()
 			selected_entity = null
+			delete_movement_path()
 
 func _add_player_unit(x, y):
 	var e = Entity.instance()
