@@ -6,14 +6,13 @@ var display_name
 var id
 
 var current_movement_points
-var max_movement_points
+var max_movement_points = 5
 
-func init(x, y, max_move, _display_name):
+func init(x, y, _display_name):
 	gridX = x
 	gridY = y
 	display_name = _display_name
-	current_movement_points = max_move
-	max_movement_points = max_move
+
 
 func move_along_path(path: PoolVector2Array):
 	if current_movement_points == 0:
@@ -41,4 +40,5 @@ func end_turn():
 	current_movement_points = max_movement_points
 
 func _ready():
+	current_movement_points = max_movement_points
 	_move(gridX, gridY)

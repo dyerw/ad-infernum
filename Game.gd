@@ -8,13 +8,15 @@ var map
 var astar
 var selected_entity
 var entities = []
+var enemy_entities = []
 var unit_display
 
-var _path_tile_indicator_ponts = PoolVector2Array([])
+var _path_tile_indicator_points = PoolVector2Array([])
 var _path_tile_indicators = []
 
 onready var DungeonMap = get_node("DungeonMap")
 onready var Entity = preload("res://scenes/Entity.tscn")
+onready var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
 onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
 onready var UnitDisplay = preload("res://scenes/UnitDisplay.tscn")
 
@@ -68,7 +70,7 @@ func get_vector_path(from: Vector2, to: Vector2) -> PoolVector2Array:
 func delete_movement_path() -> void:
 	for ti in _path_tile_indicators:
 		remove_child(ti)
-	_path_tile_indicator_ponts = PoolVector2Array([])
+	_path_tile_indicator_points = PoolVector2Array([])
 	_path_tile_indicators = []
 
 func redraw_movement_path(path: PoolVector2Array, distance: int) -> void:
@@ -89,8 +91,8 @@ func _unhandled_input(event):
 				Vector2(selected_entity.gridX, selected_entity.gridY), 
 				map_position
 			)
-			if not path == _path_tile_indicator_ponts:
-				_path_tile_indicator_ponts = path
+			if not path == _path_tile_indicator_points:
+				_path_tile_indicator_points = path
 				redraw_movement_path(path, selected_entity.current_movement_points)
 	
 	if event is InputEventMouseButton \
@@ -116,9 +118,26 @@ func _unhandled_input(event):
 
 func _add_player_unit(x, y, name):
 	var e = Entity.instance()
-	e.init(x, y, 10, name)
+	e.init(x, y, name)
 	add_child(e)
 	return e
+
+func _add_enemy_unit(x, y, name):
+	var e = EnemyEntity.instance()
+	e.init(x, y, name)
+	add_child(e)
+	return e
+
+func get_path_to_nearest_player_unit(pos: Vector2) -> PoolVector2Array:
+	var min_distance = 9999
+	var closest_path = null
+	for entity in entities:
+		var path = get_vector_path(pos, Vector2(entity.gridX, entity.gridY))
+		if path.size() < min_distance:
+			closest_path = path
+			min_distance = path.size()
+	
+	return closest_path
 
 func _ready():
 	OS.set_window_size(Vector2(16 * map_width + 100, 16 * map_height))
@@ -134,6 +153,12 @@ func _ready():
 	entities.push_back(_add_player_unit(0, 0, "Bob"))
 	entities.push_back(_add_player_unit(1, 0, "Rick"))
 	entities.push_back(_add_player_unit(29, 0, "Stan"))
+	
+	for i in range(10):
+		var x = randi() % map_width
+		var y = randi() % map_height
+		if  not is_entity_at_position(Vector2(x, y)) and MapGenUtil.is_passable(map[x][y]):
+			enemy_entities.push_back(_add_enemy_unit(x, y, "Skeleton"))
 
 func _deselect_entity():
 	delete_movement_path()
@@ -149,5 +174,7 @@ func child_clicked(node):
 
 func end_turn_button_pressed():
 	_deselect_entity()
+	for entity in enemy_entities:
+		entity.end_turn()
 	for entity in entities:
 		entity.end_turn()
