@@ -94,6 +94,11 @@ func _unhandled_input(event):
 				redraw_movement_path(path, selected_entity.current_movement_points)
 	
 	if event is InputEventMouseButton \
+	and event.button_index == BUTTON_RIGHT \
+	and event.is_pressed():
+		_deselect_entity()
+	
+	if event is InputEventMouseButton \
     and event.button_index == BUTTON_LEFT \
     and event.is_pressed():
 		var map_position = DungeonMap.world_to_map(event.position)
@@ -106,7 +111,7 @@ func _unhandled_input(event):
 			get_tree().set_input_as_handled()
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
 			selected_entity.move_along_path(path)
-			unit_display.show_entity_details(selected_entity)
+			_deselect_entity()
 			delete_movement_path()
 
 func _add_player_unit(x, y, name):
@@ -131,6 +136,7 @@ func _ready():
 	entities.push_back(_add_player_unit(29, 0, "Stan"))
 
 func _deselect_entity():
+	delete_movement_path()
 	selected_entity = null
 	unit_display.clear_entity_details()
 
@@ -140,3 +146,8 @@ func _select_entity(node):
 
 func child_clicked(node):
 	_select_entity(node)
+
+func end_turn_button_pressed():
+	_deselect_entity()
+	for entity in entities:
+		entity.end_turn()

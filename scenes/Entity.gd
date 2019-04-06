@@ -37,5 +37,8 @@ func _move(x: int, y: int):
 func on_click():
 	get_parent().child_clicked(self)
 
+func end_turn():
+	current_movement_points = max_movement_points
+
 func _ready():
 	_move(gridX, gridY)

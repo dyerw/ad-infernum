@@ -30,8 +30,15 @@ margin_bottom = 50.0
 
 [node name="MovementBar" type="ColorRect" parent="UnitDisplayContainer"]
 margin_top = 54.0
-margin_right = 60.0
+margin_right = 80.0
 margin_bottom = 64.0
 rect_min_size = Vector2( 0, 10 )
 color = Color( 0.219608, 0.321569, 0.976471, 1 )
 
+[node name="EndTurnButton" type="Button" parent="UnitDisplayContainer"]
+margin_top = 68.0
+margin_right = 80.0
+margin_bottom = 88.0
+text = "End Turn"
+
+[connection signal="pressed" from="UnitDisplayContainer/EndTurnButton" to="." method="_on_EndTurnButton_pressed"]
