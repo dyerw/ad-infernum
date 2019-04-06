@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://scenes/Log.gd" type="Script" id=1]
+
+[node name="Log" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_right = -444.0
+margin_bottom = -500.0
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+margin_right = 580.0
+margin_bottom = 100.0
+color = Color( 0.0980392, 0.0980392, 0.0980392, 1 )
+
+[node name="LogLabel" type="RichTextLabel" parent="."]
+margin_right = 580.0
+margin_bottom = 100.0
+text = "Combat Log"
+scroll_following = true
+

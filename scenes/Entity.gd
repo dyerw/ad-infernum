@@ -23,7 +23,6 @@ func init(x, y, _display_name):
 	gridY = y
 	display_name = _display_name
 
-
 func move_along_path(path: PoolVector2Array, pathing_delegate):
 	if current_movement_points == 0:
 		return
@@ -37,6 +36,9 @@ func move_along_path(path: PoolVector2Array, pathing_delegate):
 		current_movement_points -= path.size()
 	_move(new_pos.x, new_pos.y, pathing_delegate)
 
+func log_line(line):
+	get_parent().log_line(line)
+
 func take_damage(damage: int) -> bool:
 	if damage >= current_health:
 		get_parent().kill_entity(self)
@@ -47,12 +49,14 @@ func take_damage(damage: int) -> bool:
 
 func attack(entity, distance):
 	if current_attack_points == 0:
-		print("No more attacks this turn")
+		log_line("No more attacks this turn")
 		return
 	
 	if distance > attack_range:
-		print(entity.name + " is out of range")
+		log_line(entity.display_name + " is out of range")
 		return
+	
+	log_line("----\n" + self.display_name + " attacks " + entity.display_name)
 	
 	var die_one = randi() % 6
 	var die_two = randi() % 6
@@ -61,16 +65,16 @@ func attack(entity, distance):
 	
 	var dex_difference = self.dexterity - entity.dexterity
 	var final_total = die_total + dex_difference
-	print("Rolled " + String(die_total) + " + " + String(dex_difference) + " = " + String(final_total))
+	log_line("Rolled " + String(die_total) + " + " + String(dex_difference) + " = " + String(final_total) + " need 8")
 	if final_total > 7:
 		var damage = (randi() % (max_damage - min_damage)) + min_damage
 		var killed = entity.take_damage(damage)
 		if killed:
-			print("Killed " + entity.display_name)
+			log_line("Killed " + entity.display_name)
 		else:
-			print("Hit " + entity.display_name + " for " + String(damage) + ", now has " + String(entity.current_health))
+			log_line("Hit " + entity.display_name + " for " + String(damage) + ", now has " + String(entity.current_health))
 	else:
-		print("Missed " + entity.display_name)
+		log_line("Missed " + entity.display_name)
 	
 	current_attack_points -= 1
 

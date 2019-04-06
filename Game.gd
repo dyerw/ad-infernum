@@ -10,6 +10,7 @@ var selected_entity
 var entities = []
 var enemy_entities = []
 var unit_display
+var game_log
 
 var _path_tile_indicator_points = PoolVector2Array([])
 var _path_tile_indicators = []
@@ -19,6 +20,7 @@ onready var Entity = preload("res://scenes/Entity.tscn")
 onready var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
 onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
 onready var UnitDisplay = preload("res://scenes/UnitDisplay.tscn")
+onready var Log = preload("res://scenes/Log.tscn")
 
 func get_entity_at_position(pos: Vector2):
 	for entity in all_entities():
@@ -188,12 +190,14 @@ func get_path_to_nearest_player_unit(pos: Vector2) -> PoolVector2Array:
 	
 	return closest_path
 
+func log_line(line):
+	game_log.add_line(line)
+
 func _ready():
-	OS.set_window_size(Vector2(16 * map_width + 100, 16 * map_height))
+	OS.set_window_size(Vector2(16 * map_width + 100, 16 * map_height + 100))
 	
-	unit_display = UnitDisplay.instance()
-	unit_display.rect_position.x = map_width * 16
-	add_child(unit_display)
+	unit_display = get_node("UnitDisplay")
+	game_log = get_node("Log")
 	
 	map = MapGenUtil.gen_map(map_height, map_width, 0)
 	_initialize_astar(map)

@@ -39,17 +39,29 @@ margin_top = 72.0
 margin_right = 80.0
 margin_bottom = 86.0
 
-[node name="MovementBar" type="ColorRect" parent="UnitDisplayContainer"]
+[node name="AttackTextLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 90.0
 margin_right = 80.0
-margin_bottom = 100.0
+margin_bottom = 104.0
+text = "Attacks"
+
+[node name="AttackPointsLabel" type="Label" parent="UnitDisplayContainer"]
+margin_top = 108.0
+margin_right = 80.0
+margin_bottom = 122.0
+
+[node name="MovementBar" type="ColorRect" parent="UnitDisplayContainer"]
+margin_top = 126.0
+margin_right = 80.0
+margin_bottom = 136.0
 rect_min_size = Vector2( 0, 10 )
 color = Color( 0.219608, 0.321569, 0.976471, 1 )
 
 [node name="DexContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
-margin_top = 104.0
+editor/display_folded = true
+margin_top = 140.0
 margin_right = 80.0
-margin_bottom = 118.0
+margin_bottom = 154.0
 
 [node name="DexTextLabel" type="Label" parent="UnitDisplayContainer/DexContainer"]
 margin_right = 25.0
@@ -63,9 +75,9 @@ margin_bottom = 14.0
 align = 2
 
 [node name="EndTurnButton" type="Button" parent="UnitDisplayContainer"]
-margin_top = 122.0
+margin_top = 158.0
 margin_right = 80.0
-margin_bottom = 142.0
+margin_bottom = 178.0
 text = "End Turn"
 
 [connection signal="pressed" from="UnitDisplayContainer/EndTurnButton" to="." method="_on_EndTurnButton_pressed"]
