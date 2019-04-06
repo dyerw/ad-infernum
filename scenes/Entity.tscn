@@ -1,8 +1,10 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://scenes/Entity.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ClickableArea2D.gd" type="Script" id=2]
 [ext_resource path="res://dungeon_tiles.png" type="Texture" id=3]
+[ext_resource path="res://audio/move.wav" type="AudioStream" id=4]
+[ext_resource path="res://scenes/MoveAudio.gd" type="Script" id=5]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 8, 8 )
@@ -23,3 +25,10 @@ region_rect = Rect2( 48, 96, 16, 16 )
 position = Vector2( 8, 8 )
 shape = SubResource( 1 )
 
+[node name="MoveAudio" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+script = ExtResource( 5 )
+
+[node name="AudioTimer" type="Timer" parent="MoveAudio"]
+
+[connection signal="timeout" from="MoveAudio/AudioTimer" to="MoveAudio" method="_on_AudioTimer_timeout"]

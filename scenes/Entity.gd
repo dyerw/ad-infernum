@@ -1,5 +1,7 @@
 extends Node2D
 
+var move_audio
+
 var gridX
 var gridY
 var display_name
@@ -84,7 +86,8 @@ func _move(x: int, y: int, pathing_delegate):
 	gridX = x
 	gridY = y
 	self.position.x = gridX * 16
-	self.position.y = gridY * 16
+	self.position.y = gridY * 16 
+	move_audio.play_audio()
 	pathing_delegate.unblock_pathing_to_point(Vector2(oldX, oldY))
 	pathing_delegate.block_pathing_to_point(Vector2(gridX, gridY))
 
@@ -96,6 +99,8 @@ func end_turn(pathing_delegate):
 	current_attack_points = max_attack_points
 
 func _ready():
+	move_audio = get_node("MoveAudio")
+	
 	current_health = max_health
 	current_movement_points = max_movement_points
 	current_attack_points = max_attack_points
