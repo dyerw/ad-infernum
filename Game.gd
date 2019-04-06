@@ -20,6 +20,11 @@ onready var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
 onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
 onready var UnitDisplay = preload("res://scenes/UnitDisplay.tscn")
 
+func get_entity_at_position(pos: Vector2):
+	for entity in all_entities():
+		if entity.gridX == pos.x and entity.gridY == pos.y:
+			return entity
+
 func is_enemy_entity_at_position(pos: Vector2) -> bool:
 	for entity in enemy_entities:
 		if entity.gridX == pos.x and entity.gridY == pos.y:
@@ -132,6 +137,7 @@ func _unhandled_input(event):
 		if map_position.x >= map_width or map_position.y >= map_height:
 			return
 		
+		# Move
 		if selected_entity and not is_entity_at_position(map_position) \
 		and MapGenUtil.is_passable(map[map_position.x][map_position.y]):
 			get_tree().set_input_as_handled()
@@ -139,6 +145,14 @@ func _unhandled_input(event):
 			selected_entity.move_along_path(path, self)
 			_deselect_entity()
 			delete_movement_path()
+		
+		# Attack
+		if selected_entity and is_enemy_entity_at_position(map_position):
+			get_tree().set_input_as_handled()
+			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
+			var enemy = get_entity_at_position(map_position)
+			selected_entity.attack(enemy, path.size())
+			_deselect_entity()
 
 func _add_player_unit(x, y, name):
 	var e = Entity.instance()
@@ -184,6 +198,14 @@ func _ready():
 		var y = randi() % map_height
 		if  not is_entity_at_position(Vector2(x, y)) and MapGenUtil.is_passable(map[x][y]):
 			enemy_entities.push_back(_add_enemy_unit(x, y, "Skeleton"))
+
+func kill_entity(entity):
+	remove_child(entity)
+	if not (enemy_entities.find(entity) == -1):
+		enemy_entities.remove(enemy_entities.find(entity))
+	
+	if not (entities.find(entity) == -1):
+		entities.remove(enemy_entities.find(entity))
 
 func all_entities():
 	return entities + enemy_entities

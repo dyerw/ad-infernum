@@ -2,6 +2,7 @@ extends "res://scenes/Entity.gd"
 
 func _init():
 	max_movement_points = 3
+	dexterity = 2
 
 func on_click():
 	pass
