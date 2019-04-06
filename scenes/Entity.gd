@@ -19,7 +19,7 @@ func init(x, y, _display_name):
 	display_name = _display_name
 
 
-func move_along_path(path: PoolVector2Array):
+func move_along_path(path: PoolVector2Array, pathing_delegate):
 	if current_movement_points == 0:
 		return
 	
@@ -30,21 +30,25 @@ func move_along_path(path: PoolVector2Array):
 	else:
 		new_pos = path[path.size() - 1]
 		current_movement_points -= path.size()
-	_move(new_pos.x, new_pos.y)
+	_move(new_pos.x, new_pos.y, pathing_delegate)
 
-func _move(x: int, y: int):
+func _move(x: int, y: int, pathing_delegate):
+	var oldX = gridX
+	var oldY = gridY
 	gridX = x
 	gridY = y
 	self.position.x = gridX * 16
 	self.position.y = gridY * 16
+	pathing_delegate.unblock_pathing_to_point(Vector2(oldX, oldY))
+	pathing_delegate.block_pathing_to_point(Vector2(gridX, gridY))
 
 func on_click():
 	get_parent().child_clicked(self)
 
-func end_turn():
+func end_turn(pathing_delegate):
 	current_movement_points = max_movement_points
 
 func _ready():
 	current_health = max_health
 	current_movement_points = max_movement_points
-	_move(gridX, gridY)
+	_move(gridX, gridY, get_parent())

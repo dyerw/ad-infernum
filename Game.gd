@@ -20,19 +20,39 @@ onready var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
 onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
 onready var UnitDisplay = preload("res://scenes/UnitDisplay.tscn")
 
-func is_entity_at_position(pos: Vector2) -> bool:
+func is_enemy_entity_at_position(pos: Vector2) -> bool:
+	for entity in enemy_entities:
+		if entity.gridX == pos.x and entity.gridY == pos.y:
+			return true
+	return false
+
+func is_player_entity_at_position(pos: Vector2) -> bool:
 	for entity in entities:
 		if entity.gridX == pos.x and entity.gridY == pos.y:
 			return true
 	return false
 
+func is_entity_at_position(pos: Vector2) -> bool:
+	return is_enemy_entity_at_position(pos) or is_player_entity_at_position(pos)
+
 # Generates a unique int for a given pair, a uuid for a Vector2
 func _cantor_pair(a, b):
 	return (a + b) * (a + b + 1) / 2 + a
 
-func _connect_points_if_passable(_map, from: Vector2, to: Vector2) -> void:
-	if MapGenUtil.is_passable(_map[to.x][to.y]) and MapGenUtil.is_passable(_map[from.x][from.y]):
-		astar.connect_points(_cantor_pair(from.x, from.y), _cantor_pair(to.x, to.y))
+func pos_is_unobstructed(pos: Vector2) -> bool:
+	return not is_entity_at_position(pos) and MapGenUtil.is_passable(map[pos.x][pos.y])
+
+func block_pathing_to_point(pos: Vector2) -> void:
+	astar.set_point_weight_scale(_cantor_pair(pos.x, pos.y), 99998)
+
+func unblock_pathing_to_point(pos: Vector2) -> void:
+	astar.set_point_weight_scale(
+		_cantor_pair(pos.x, pos.y), 
+		MapGenUtil.get_movement_cost(map[pos.x][pos.y])
+	)
+
+func _connect_points(_map, from: Vector2, to: Vector2) -> void:
+	astar.connect_points(_cantor_pair(from.x, from.y), _cantor_pair(to.x, to.y))
 
 func _initialize_astar(_map):
 	astar = AStar.new()
@@ -45,19 +65,23 @@ func _initialize_astar(_map):
 			# All except the furthest right
 			if x < _map.size() - 1:
 				# Connect point to the right
-				_connect_points_if_passable(_map, Vector2(x, y), Vector2(x + 1, y))
+				_connect_points(_map, Vector2(x, y), Vector2(x + 1, y))
 			# All except the furthest down
 			if y < _map[x].size() - 1:
 				# Connect point to the bottom
-				_connect_points_if_passable(_map, Vector2(x, y), Vector2(x, y + 1))
+				_connect_points(_map, Vector2(x, y), Vector2(x, y + 1))
 			# All except furthest right OR furthest up
 			if x < _map.size() - 1 and (not y == 0):
 				# Connect to top right diagonal
-				_connect_points_if_passable(_map, Vector2(x, y), Vector2(x + 1, y - 1))
+				_connect_points(_map, Vector2(x, y), Vector2(x + 1, y - 1))
 			# All except furthest right OR furthest down
 			if x < _map.size() - 1 and y < _map[x].size():
 				# Connect to the bottom-right diagonal
-				_connect_points_if_passable(_map, Vector2(x, y), Vector2(x + 1, y + 1))
+				_connect_points(_map, Vector2(x, y), Vector2(x + 1, y + 1))
+	
+	for x in range(_map.size() - 1):
+		for y in range(_map[x].size() - 1):
+			astar.set_point_weight_scale(_cantor_pair(x, y), MapGenUtil.get_movement_cost(_map[x][y]))
 
 func get_vector_path(from: Vector2, to: Vector2) -> PoolVector2Array:
 	var v3_array = astar.get_point_path(_cantor_pair(from.x, from.y), _cantor_pair(to.x, to.y))
@@ -112,7 +136,7 @@ func _unhandled_input(event):
 		and MapGenUtil.is_passable(map[map_position.x][map_position.y]):
 			get_tree().set_input_as_handled()
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
-			selected_entity.move_along_path(path)
+			selected_entity.move_along_path(path, self)
 			_deselect_entity()
 			delete_movement_path()
 
@@ -132,6 +156,7 @@ func get_path_to_nearest_player_unit(pos: Vector2) -> PoolVector2Array:
 	var min_distance = 9999
 	var closest_path = null
 	for entity in entities:
+		# We have to briefly reconnect the player pos to properly pathfind
 		var path = get_vector_path(pos, Vector2(entity.gridX, entity.gridY))
 		if path.size() < min_distance:
 			closest_path = path
@@ -160,6 +185,9 @@ func _ready():
 		if  not is_entity_at_position(Vector2(x, y)) and MapGenUtil.is_passable(map[x][y]):
 			enemy_entities.push_back(_add_enemy_unit(x, y, "Skeleton"))
 
+func all_entities():
+	return entities + enemy_entities
+
 func _deselect_entity():
 	delete_movement_path()
 	selected_entity = null
@@ -174,7 +202,5 @@ func child_clicked(node):
 
 func end_turn_button_pressed():
 	_deselect_entity()
-	for entity in enemy_entities:
-		entity.end_turn()
-	for entity in entities:
-		entity.end_turn()
+	for entity in all_entities():
+		entity.end_turn(self)

@@ -1,5 +1,14 @@
 enum Tiles { FLOOR, WALL }
 
+static func get_movement_cost(tile) -> int:
+	match tile:
+		Tiles.FLOOR:
+			return 1
+		Tiles.WALL:
+			return 99999
+	print(String(tile) + " tile has no movement point value!!!")
+	return -1
+
 static func is_passable(tile) -> bool:
 	if tile == Tiles.FLOOR:
 		return true
