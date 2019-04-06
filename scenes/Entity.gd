@@ -59,7 +59,7 @@ func attack(entity, distance):
 	var die_three = randi() % 6
 	var die_total = die_one + die_two + die_three
 	
-	var dex_difference = dexterity - entity.dexterity
+	var dex_difference = self.dexterity - entity.dexterity
 	var final_total = die_total + dex_difference
 	print("Rolled " + String(die_total) + " + " + String(dex_difference) + " = " + String(final_total))
 	if final_total > 7:

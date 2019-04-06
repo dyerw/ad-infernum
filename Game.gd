@@ -166,6 +166,16 @@ func _add_enemy_unit(x, y, name):
 	add_child(e)
 	return e
 
+func get_nearest_player_unit(pos: Vector2):
+	var min_distance = 9999
+	var closest_entity
+	for entity in entities:
+		var path = get_vector_path(pos, Vector2(entity.gridX, entity.gridY))
+		if path.size() < min_distance:
+			closest_entity = entity
+			min_distance = path.size()
+	return closest_entity
+
 func get_path_to_nearest_player_unit(pos: Vector2) -> PoolVector2Array:
 	var min_distance = 9999
 	var closest_path = null
@@ -200,12 +210,13 @@ func _ready():
 			enemy_entities.push_back(_add_enemy_unit(x, y, "Skeleton"))
 
 func kill_entity(entity):
+	unblock_pathing_to_point(Vector2(entity.gridX, entity.gridY))
 	remove_child(entity)
 	if not (enemy_entities.find(entity) == -1):
 		enemy_entities.remove(enemy_entities.find(entity))
 	
 	if not (entities.find(entity) == -1):
-		entities.remove(enemy_entities.find(entity))
+		entities.remove(entities.find(entity))
 
 func all_entities():
 	return entities + enemy_entities
