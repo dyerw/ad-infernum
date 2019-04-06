@@ -2,14 +2,16 @@ extends Node2D
 
 var gridX
 var gridY
+var display_name
 var id
 
 var current_movement_points
 var max_movement_points
 
-func init(x, y, max_move):
+func init(x, y, max_move, _display_name):
 	gridX = x
 	gridY = y
+	display_name = _display_name
 	current_movement_points = max_move
 	max_movement_points = max_move
 

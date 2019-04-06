@@ -1,10 +1,14 @@
 extends Node2D
 const MapGenUtil = preload("utils/MapGen.gd")
 
+const map_height = 30
+const map_width = 30
+
 var map
 var astar
 var selected_entity
 var entities = []
+var unit_display
 
 var _path_tile_indicator_ponts = PoolVector2Array([])
 var _path_tile_indicators = []
@@ -12,6 +16,7 @@ var _path_tile_indicators = []
 onready var DungeonMap = get_node("DungeonMap")
 onready var Entity = preload("res://scenes/Entity.tscn")
 onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
+onready var UnitDisplay = preload("res://scenes/UnitDisplay.tscn")
 
 func is_entity_at_position(pos: Vector2) -> bool:
 	for entity in entities:
@@ -92,30 +97,46 @@ func _unhandled_input(event):
     and event.button_index == BUTTON_LEFT \
     and event.is_pressed():
 		var map_position = DungeonMap.world_to_map(event.position)
+		
+		if map_position.x >= map_width or map_position.y >= map_height:
+			return
+		
 		if selected_entity and not is_entity_at_position(map_position) \
 		and MapGenUtil.is_passable(map[map_position.x][map_position.y]):
 			get_tree().set_input_as_handled()
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
 			selected_entity.move_along_path(path)
-			selected_entity = null
+			unit_display.show_entity_details(selected_entity)
 			delete_movement_path()
 
-func _add_player_unit(x, y):
+func _add_player_unit(x, y, name):
 	var e = Entity.instance()
-	e.init(x, y, 10)
+	e.init(x, y, 10, name)
 	add_child(e)
 	return e
 
 func _ready():
-	OS.set_window_size(Vector2(16 * 30, 16 * 30))
+	OS.set_window_size(Vector2(16 * map_width + 100, 16 * map_height))
 	
-	map = MapGenUtil.gen_map(30, 30, 0)
+	unit_display = UnitDisplay.instance()
+	unit_display.rect_position.x = map_width * 16
+	add_child(unit_display)
+	
+	map = MapGenUtil.gen_map(map_height, map_width, 0)
 	_initialize_astar(map)
 	DungeonMap.draw_map(map)
 	
-	entities.push_back(_add_player_unit(0, 0))
-	entities.push_back(_add_player_unit(1, 0))
-	entities.push_back(_add_player_unit(29, 0))
+	entities.push_back(_add_player_unit(0, 0, "Bob"))
+	entities.push_back(_add_player_unit(1, 0, "Rick"))
+	entities.push_back(_add_player_unit(29, 0, "Stan"))
+
+func _deselect_entity():
+	selected_entity = null
+	unit_display.clear_entity_details()
+
+func _select_entity(node):
+	selected_entity = node
+	unit_display.show_entity_details(node)
 
 func child_clicked(node):
-	selected_entity = node
+	_select_entity(node)
