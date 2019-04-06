@@ -6,7 +6,12 @@ var display_name
 var id
 
 var current_movement_points
+var current_health
+
+# Stats
 var max_movement_points = 5
+var max_health = 10
+var dexterity = 5
 
 func init(x, y, _display_name):
 	gridX = x
@@ -40,5 +45,6 @@ func end_turn():
 	current_movement_points = max_movement_points
 
 func _ready():
+	current_health = max_health
 	current_movement_points = max_movement_points
 	_move(gridX, gridY)

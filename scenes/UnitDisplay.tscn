@@ -17,28 +17,55 @@ margin_bottom = 64.0
 margin_right = 80.0
 margin_bottom = 14.0
 
-[node name="MovementTextLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="HealthTextLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 18.0
 margin_right = 80.0
 margin_bottom = 32.0
-text = "Movement"
+text = "Health"
 
-[node name="MovementPointsLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="HealthPointsLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 36.0
 margin_right = 80.0
 margin_bottom = 50.0
 
-[node name="MovementBar" type="ColorRect" parent="UnitDisplayContainer"]
+[node name="MovementTextLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 54.0
 margin_right = 80.0
-margin_bottom = 64.0
+margin_bottom = 68.0
+text = "Movement"
+
+[node name="MovementPointsLabel" type="Label" parent="UnitDisplayContainer"]
+margin_top = 72.0
+margin_right = 80.0
+margin_bottom = 86.0
+
+[node name="MovementBar" type="ColorRect" parent="UnitDisplayContainer"]
+margin_top = 90.0
+margin_right = 80.0
+margin_bottom = 100.0
 rect_min_size = Vector2( 0, 10 )
 color = Color( 0.219608, 0.321569, 0.976471, 1 )
 
-[node name="EndTurnButton" type="Button" parent="UnitDisplayContainer"]
-margin_top = 68.0
+[node name="DexContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
+margin_top = 104.0
 margin_right = 80.0
-margin_bottom = 88.0
+margin_bottom = 118.0
+
+[node name="DexTextLabel" type="Label" parent="UnitDisplayContainer/DexContainer"]
+margin_right = 25.0
+margin_bottom = 14.0
+text = "DEX"
+
+[node name="DexPointsLabel" type="Label" parent="UnitDisplayContainer/DexContainer"]
+margin_left = 29.0
+margin_right = 29.0
+margin_bottom = 14.0
+align = 2
+
+[node name="EndTurnButton" type="Button" parent="UnitDisplayContainer"]
+margin_top = 122.0
+margin_right = 80.0
+margin_bottom = 142.0
 text = "End Turn"
 
 [connection signal="pressed" from="UnitDisplayContainer/EndTurnButton" to="." method="_on_EndTurnButton_pressed"]
