@@ -1,4 +1,10 @@
 extends Node2D
+
+# Resources
+var selection_cursor = load("res://selection_cursor.png")
+var cursor = load("res://cursor.png")
+var attack_cursor = load("res://attack_cursor.png")
+
 const MapGenUtil = preload("utils/MapGen.gd")
 
 const map_height = 30
@@ -117,6 +123,18 @@ func redraw_movement_path(path: PoolVector2Array, distance: int) -> void:
 func _unhandled_input(event):
 	if event is InputEventMouseMotion:
 		var map_position = DungeonMap.world_to_map(event.position)
+		
+		# Cursor updates
+		if is_player_entity_at_position(map_position):
+			Input.set_custom_mouse_cursor(selection_cursor)
+		
+		if not is_entity_at_position(map_position):
+			Input.set_custom_mouse_cursor(cursor)
+		
+		if selected_entity and is_enemy_entity_at_position(map_position):
+			Input.set_custom_mouse_cursor(attack_cursor)
+		
+		# Path indicator updates
 		if selected_entity and not is_entity_at_position(map_position):
 			var path = get_vector_path(
 				Vector2(selected_entity.gridX, selected_entity.gridY), 
