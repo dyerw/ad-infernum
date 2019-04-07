@@ -13,7 +13,7 @@ var extra_connector_chance: int = 50
 var room_extra_size: int = 0
 var winding_percent: int = 50
 
-var _rooms: Array = [] # :: [Rect2]
+var rooms: Array = [] # :: [Rect2]
 var _regions = [] # :: [[int]]
 
 var _current_region: int = -1
@@ -155,6 +155,28 @@ func _connect_regions(area):
 			if Rand.one_in(extra_connector_chance):
 				area[other_connector.x][other_connector.y] = Tiles.FLOOR
 		connectors = new_connectors
+	print(merged)
+
+func _remove_dead_ends(area):
+	var done = false
+	
+	while not done:
+		done = true
+		
+		for x in range(1, area.size() - 1):
+			for y in range(1, area[x].size() - 1):
+				if area[x][y] == Tiles.WALL:
+					continue
+				
+				var exits = 0
+				for dir in all_directions:
+					var t = _get_tile_in_direction(Vector2(x, y), dir)
+					if not area[t.x][t.y] == Tiles.WALL:
+						exits += 1
+				
+				if exits == 1:
+					done = false
+					area[x][y] = Tiles.WALL
 
 func generate(width, height):
 	if width % 2 == 0 or height % 2 == 0:
@@ -180,6 +202,7 @@ func generate(width, height):
 					_grow_maze(area, pos)
 	
 	_connect_regions(area)
+	_remove_dead_ends(area)
 	return area
 
 func _debug_print_regions():
@@ -223,7 +246,7 @@ func _add_rooms(area):
 		var room = Rect2(x, y, width, height)
 		
 		var overlaps = false
-		for other in _rooms:
+		for other in rooms:
 			if room.intersects(other):
 				overlaps = true
 				break
@@ -231,7 +254,7 @@ func _add_rooms(area):
 		if overlaps:
 			continue
 		
-		_rooms.push_back(room)
+		rooms.push_back(room)
 		
 		_current_region += 1
 		_carve_rect(area, room)

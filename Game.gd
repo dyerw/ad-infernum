@@ -6,6 +6,7 @@ var cursor = load("res://cursor.png")
 var attack_cursor = load("res://attack_cursor.png")
 
 const MapGenUtil = preload("utils/MapGen.gd")
+const Rand = preload("utils/Rand.gd")
 
 const map_height = 31
 const map_width = 51
@@ -174,16 +175,42 @@ func _unhandled_input(event):
 			selected_entity.attack(enemy, path.size())
 			_deselect_entity()
 
+func _get_all_positions_in_rect(rect: Rect2) -> Array:
+	var positions = []
+	for x in range(rect.position.x, rect.position.x + rect.size.x):
+		for y in range(rect.position.y, rect.position.y + rect.size.y):
+			positions.push_back(Vector2(x, y))
+	return positions
+
+func _place_player_units_in_room(room):
+	var names = ["Matt", "Liam", "Dave", "Beth", "Tommy", "Harold", "Pikachu"]
+	var positions = _get_all_positions_in_rect(room)
+	for i in range(3):
+		var p = Rand.choose(positions)
+		var n = Rand.choose(names)
+		_add_player_unit(p.x, p.y, n)
+		print(p)
+		positions.remove(positions.find(p))
+
+func _place_enemy_units_in_room(room):
+	var positions = _get_all_positions_in_rect(room)
+	for i in range(Rand.int_range(3, 5)):
+		var p = Rand.choose(positions)
+		_add_enemy_unit(p.x, p.y, "Skeleton")
+		positions.remove(positions.find(p))
+
 func _add_player_unit(x, y, name):
 	var e = Entity.instance()
 	e.init(x, y, name)
 	add_child(e)
+	entities.push_back(e)
 	return e
 
 func _add_enemy_unit(x, y, name):
 	var e = EnemyEntity.instance()
 	e.init(x, y, name)
 	add_child(e)
+	enemy_entities.push_back(e)
 	return e
 
 func get_nearest_player_unit(pos: Vector2):
@@ -222,17 +249,13 @@ func _ready():
 	map = map_gen.generate(map_width, map_height)
 	DungeonMap.draw_map(map)
 	_initialize_astar(map)
-	return
 	
-	entities.push_back(_add_player_unit(0, 0, "Bob"))
-	entities.push_back(_add_player_unit(1, 0, "Rick"))
-	entities.push_back(_add_player_unit(29, 0, "Stan"))
-	
-	for i in range(10):
-		var x = randi() % map_width
-		var y = randi() % map_height
-		if  not is_entity_at_position(Vector2(x, y)) and MapGenUtil.is_passable(map[x][y]):
-			enemy_entities.push_back(_add_enemy_unit(x, y, "Skeleton"))
+	var rooms = map_gen.rooms.duplicate()
+	_place_player_units_in_room(rooms[0])
+	rooms.pop_front()
+	for room in rooms:
+		if Rand.one_in(5):
+			_place_enemy_units_in_room(room)
 
 func kill_entity(entity):
 	unblock_pathing_to_point(Vector2(entity.gridX, entity.gridY))
