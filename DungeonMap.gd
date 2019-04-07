@@ -10,8 +10,12 @@ func draw_map(map):
 	for x in range(0, map.size()):
 		for y in range(0, map[0].size()):
 			var tile
-			if map[x][y] == MapGenUtil.Tiles.FLOOR:
-				tile = 33
-			else:
-				tile = 18
+			match map[x][y]:
+				MapGenUtil.Tiles.FLOOR:
+					tile = 33
+				MapGenUtil.Tiles.WALL:
+					tile = 18
+				MapGenUtil.Tiles.MARK:
+					tile = 1
+
 			set_cell(x, y, tile)
