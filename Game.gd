@@ -7,8 +7,8 @@ var attack_cursor = load("res://attack_cursor.png")
 
 const MapGenUtil = preload("utils/MapGen.gd")
 
-const map_height = 30
-const map_width = 30
+const map_height = 31
+const map_width = 51
 
 var map
 var astar
@@ -212,14 +212,17 @@ func log_line(line):
 	game_log.add_line(line)
 
 func _ready():
-	OS.set_window_size(Vector2(16 * map_width + 100, 16 * map_height + 100))
+	randomize()
+	OS.set_window_size(Vector2(16 * map_width + 150, 16 * map_height + 100))
 	
 	unit_display = get_node("UnitDisplay")
 	game_log = get_node("Log")
 	
-	map = MapGenUtil.gen_map(map_height, map_width, 0)
-	_initialize_astar(map)
+	var map_gen = MapGenUtil.new()
+	map = map_gen.generate(map_width, map_height)
 	DungeonMap.draw_map(map)
+	_initialize_astar(map)
+	return
 	
 	entities.push_back(_add_player_unit(0, 0, "Bob"))
 	entities.push_back(_add_player_unit(1, 0, "Rick"))

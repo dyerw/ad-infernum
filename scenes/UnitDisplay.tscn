@@ -1,67 +1,77 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://scenes/UnitDisplay.gd" type="Script" id=1]
+[ext_resource path="res://unit_display_background.png" type="Texture" id=2]
+[ext_resource path="res://fonts/Pixellari.tres" type="DynamicFont" id=3]
 
 [node name="UnitDisplay" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_right = -924.0
+margin_right = -874.0
 margin_bottom = -120.0
 script = ExtResource( 1 )
 
+[node name="TextureRect" type="TextureRect" parent="."]
+margin_right = 150.0
+margin_bottom = 480.0
+texture = ExtResource( 2 )
+
 [node name="UnitDisplayContainer" type="VBoxContainer" parent="."]
-margin_right = 80.0
-margin_bottom = 64.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = 140.0
+margin_bottom = 470.0
 
 [node name="NameLabel" type="Label" parent="UnitDisplayContainer"]
-margin_right = 80.0
-margin_bottom = 14.0
+margin_right = 130.0
+margin_bottom = 16.0
+custom_fonts/font = ExtResource( 3 )
 
 [node name="HealthTextLabel" type="Label" parent="UnitDisplayContainer"]
-margin_top = 18.0
-margin_right = 80.0
-margin_bottom = 32.0
+margin_top = 20.0
+margin_right = 130.0
+margin_bottom = 34.0
 text = "Health"
 
 [node name="HealthPointsLabel" type="Label" parent="UnitDisplayContainer"]
-margin_top = 36.0
-margin_right = 80.0
-margin_bottom = 50.0
+margin_top = 38.0
+margin_right = 130.0
+margin_bottom = 52.0
 
 [node name="MovementTextLabel" type="Label" parent="UnitDisplayContainer"]
-margin_top = 54.0
-margin_right = 80.0
-margin_bottom = 68.0
+margin_top = 56.0
+margin_right = 130.0
+margin_bottom = 70.0
 text = "Movement"
 
 [node name="MovementPointsLabel" type="Label" parent="UnitDisplayContainer"]
-margin_top = 72.0
-margin_right = 80.0
-margin_bottom = 86.0
+margin_top = 74.0
+margin_right = 130.0
+margin_bottom = 88.0
 
 [node name="AttackTextLabel" type="Label" parent="UnitDisplayContainer"]
-margin_top = 90.0
-margin_right = 80.0
-margin_bottom = 104.0
+margin_top = 92.0
+margin_right = 130.0
+margin_bottom = 106.0
 text = "Attacks"
 
 [node name="AttackPointsLabel" type="Label" parent="UnitDisplayContainer"]
-margin_top = 108.0
-margin_right = 80.0
-margin_bottom = 122.0
+margin_top = 110.0
+margin_right = 130.0
+margin_bottom = 124.0
 
 [node name="MovementBar" type="ColorRect" parent="UnitDisplayContainer"]
-margin_top = 126.0
-margin_right = 80.0
-margin_bottom = 136.0
+margin_top = 128.0
+margin_right = 130.0
+margin_bottom = 138.0
 rect_min_size = Vector2( 0, 10 )
 color = Color( 0.219608, 0.321569, 0.976471, 1 )
 
 [node name="DexContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
 editor/display_folded = true
-margin_top = 140.0
-margin_right = 80.0
-margin_bottom = 154.0
+margin_top = 142.0
+margin_right = 130.0
+margin_bottom = 156.0
 
 [node name="DexTextLabel" type="Label" parent="UnitDisplayContainer/DexContainer"]
 margin_right = 25.0
@@ -75,9 +85,9 @@ margin_bottom = 14.0
 align = 2
 
 [node name="EndTurnButton" type="Button" parent="UnitDisplayContainer"]
-margin_top = 158.0
-margin_right = 80.0
-margin_bottom = 178.0
+margin_top = 160.0
+margin_right = 130.0
+margin_bottom = 180.0
 text = "End Turn"
 
 [connection signal="pressed" from="UnitDisplayContainer/EndTurnButton" to="." method="_on_EndTurnButton_pressed"]
