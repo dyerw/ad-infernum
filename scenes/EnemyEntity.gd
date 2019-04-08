@@ -8,8 +8,8 @@ func on_click():
 	pass
 
 func end_turn(pathing_delegate):
-	var target_path = get_parent().get_path_to_nearest_player_unit(Vector2(self.gridX, self.gridY))
-	if target_path: 
+	var target_path = pathing_delegate.get_path_to_nearest_player_unit(Vector2(self.gridX, self.gridY))
+	if target_path:
 		target_path.remove(target_path.size() - 1)
 		if target_path.size() > 0:
 			yield(.move_along_path(target_path, pathing_delegate), "completed")

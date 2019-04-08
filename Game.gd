@@ -21,7 +21,7 @@ var game_log
 
 var user_input_blocked = false
 
-var _path_tile_indicator_points = PoolVector2Array([])
+var _path_tile_indicator_points = []
 var _path_tile_indicators = []
 
 onready var DungeonMap = get_node("DungeonMap")
@@ -101,7 +101,7 @@ func _initialize_astar(_map):
 
 func get_vector_path(from: Vector2, to: Vector2) -> PoolVector2Array:
 	var v3_array = astar.get_point_path(_cantor_pair(from.x, from.y), _cantor_pair(to.x, to.y))
-	var v2_array = PoolVector2Array([])
+	var v2_array = []
 	for v3 in v3_array:
 		v2_array.append(Vector2(v3.x, v3.y))
 	v2_array.remove(0) # First position is the entities position, we don't need that
@@ -110,7 +110,7 @@ func get_vector_path(from: Vector2, to: Vector2) -> PoolVector2Array:
 func delete_movement_path() -> void:
 	for ti in _path_tile_indicators:
 		remove_child(ti)
-	_path_tile_indicator_points = PoolVector2Array([])
+	_path_tile_indicator_points = []
 	_path_tile_indicators = []
 
 func redraw_movement_path(path: PoolVector2Array, distance: int) -> void:
@@ -231,16 +231,18 @@ func get_nearest_player_unit(pos: Vector2):
 	return closest_entity
 
 func get_path_to_nearest_player_unit(pos: Vector2) -> PoolVector2Array:
-	var min_distance = 9999
+	var min_distance = 999999
 	var closest_path = null
 	for entity in entities:
-		# We have to briefly reconnect the player pos to properly pathfind
 		var path = get_vector_path(pos, Vector2(entity.gridX, entity.gridY))
 		if path.size() < min_distance:
 			closest_path = path
 			min_distance = path.size()
 	
 	return closest_path
+
+func get_movement_cost_for_point(pos: Vector2) -> int:
+	return astar.get_point_weight_scale(_cantor_pair(pos.x, pos.y))
 
 func log_line(line):
 	game_log.add_line(line)
