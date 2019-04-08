@@ -31,6 +31,7 @@ func init(x, y, _display_name):
 
 func move_along_path(path: PoolVector2Array, pathing_delegate):
 	if current_movement_points == 0:
+		yield(get_tree(), "idle_frame")
 		return
 
 	if current_movement_points < path.size():
