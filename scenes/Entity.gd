@@ -1,6 +1,10 @@
 extends Node2D
 
 var move_audio
+var take_damage_audio
+var miss_audio
+var hit_audio
+var death_audio
 
 var gridX
 var gridY
@@ -28,24 +32,27 @@ func init(x, y, _display_name):
 func move_along_path(path: PoolVector2Array, pathing_delegate):
 	if current_movement_points == 0:
 		return
-	
-	var new_pos
+
 	if current_movement_points < path.size():
-		new_pos = path[current_movement_points - 1]
+		path.resize(current_movement_points)
 		current_movement_points = 0
 	else:
-		new_pos = path[path.size() - 1]
 		current_movement_points -= path.size()
-	_move(new_pos.x, new_pos.y, pathing_delegate)
+	
+	for point in path:
+		_move(point.x, point.y, pathing_delegate)
+		yield(get_tree().create_timer(0.1), "timeout")
 
 func log_line(line):
 	get_parent().log_line(line)
 
 func take_damage(damage: int) -> bool:
 	if damage >= current_health:
+		death_audio.play()
 		get_parent().kill_entity(self)
 		return true
 	else:
+		take_damage_audio.play()
 		current_health -= damage
 		return false
 
@@ -69,6 +76,7 @@ func attack(entity, distance):
 	var final_total = die_total + dex_difference
 	log_line("Rolled " + String(die_total) + " + " + String(dex_difference) + " = " + String(final_total) + " need 8")
 	if final_total > 7:
+		hit_audio.play()
 		var damage = (randi() % (max_damage - min_damage)) + min_damage
 		var killed = entity.take_damage(damage)
 		if killed:
@@ -76,18 +84,22 @@ func attack(entity, distance):
 		else:
 			log_line("Hit " + entity.display_name + " for " + String(damage) + ", now has " + String(entity.current_health))
 	else:
+		miss_audio.play()
 		log_line("Missed " + entity.display_name)
 	
 	current_attack_points -= 1
 
 func _move(x: int, y: int, pathing_delegate):
+	_move_without_sound(x, y, pathing_delegate)
+	move_audio.play_audio()
+
+func _move_without_sound(x: int, y: int, pathing_delegate):
 	var oldX = gridX
 	var oldY = gridY
 	gridX = x
 	gridY = y
 	self.position.x = gridX * 16
-	self.position.y = gridY * 16 
-	move_audio.play_audio()
+	self.position.y = gridY * 16
 	pathing_delegate.unblock_pathing_to_point(Vector2(oldX, oldY))
 	pathing_delegate.block_pathing_to_point(Vector2(gridX, gridY))
 
@@ -95,13 +107,18 @@ func on_click():
 	get_parent().child_clicked(self)
 
 func end_turn(pathing_delegate):
+	yield(get_tree(), "idle_frame")
 	current_movement_points = max_movement_points
 	current_attack_points = max_attack_points
 
 func _ready():
 	move_audio = get_node("MoveAudio")
+	take_damage_audio = get_node("TakeDamageAudio")
+	miss_audio = get_node("MissAudio")
+	hit_audio = get_node("HitAudio")
+	death_audio = get_node("DeathAudio")
 	
 	current_health = max_health
 	current_movement_points = max_movement_points
 	current_attack_points = max_attack_points
-	_move(gridX, gridY, get_parent())
+	_move_without_sound(gridX, gridY, get_parent())

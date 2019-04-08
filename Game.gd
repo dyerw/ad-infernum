@@ -19,6 +19,8 @@ var enemy_entities = []
 var unit_display
 var game_log
 
+var user_input_blocked = false
+
 var _path_tile_indicator_points = PoolVector2Array([])
 var _path_tile_indicators = []
 
@@ -122,6 +124,9 @@ func redraw_movement_path(path: PoolVector2Array, distance: int) -> void:
 			_path_tile_indicators.push_back(p)
 
 func _unhandled_input(event):
+	if user_input_blocked:
+		return
+	
 	if event is InputEventMouseMotion:
 		var map_position = DungeonMap.world_to_map(event.position)
 		
@@ -163,7 +168,9 @@ func _unhandled_input(event):
 		and MapGenUtil.is_passable(map[map_position.x][map_position.y]):
 			get_tree().set_input_as_handled()
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
-			selected_entity.move_along_path(path, self)
+			user_input_blocked = true
+			yield(selected_entity.move_along_path(path, self), "completed")
+			user_input_blocked = false
 			_deselect_entity()
 			delete_movement_path()
 		
@@ -283,5 +290,7 @@ func child_clicked(node):
 
 func end_turn_button_pressed():
 	_deselect_entity()
+	user_input_blocked = true
 	for entity in all_entities():
-		entity.end_turn(self)
+		yield(entity.end_turn(self), "completed")
+	user_input_blocked = false

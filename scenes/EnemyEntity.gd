@@ -12,7 +12,8 @@ func end_turn(pathing_delegate):
 	if target_path: 
 		target_path.remove(target_path.size() - 1)
 		if target_path.size() > 0:
-			.move_along_path(target_path, pathing_delegate)
+			yield(.move_along_path(target_path, pathing_delegate), "completed")
 		else:
 			.attack(get_parent().get_nearest_player_unit(Vector2(self.gridX, self.gridY)), 1)
+			yield(get_tree(), "idle_frame")
 	.end_turn(pathing_delegate)
