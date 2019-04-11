@@ -20,6 +20,8 @@ var max_movement_points = 5
 var max_health = 10
 var max_attack_points = 1
 var dexterity = 5
+var evade = 5
+var strength = 3
 var max_damage = 6
 var min_damage = 3
 var attack_range = 1
@@ -82,12 +84,12 @@ func attack(entity, distance):
 	var die_three = randi() % 6
 	var die_total = die_one + die_two + die_three
 	
-	var dex_difference = self.dexterity - entity.dexterity
+	var dex_difference = self.dexterity - entity.evade
 	var final_total = die_total + dex_difference
 	log_line("Rolled " + String(die_total) + " + " + String(dex_difference) + " = " + String(final_total) + " need 8")
 	if final_total > 7:
 		hit_audio.play()
-		var damage = (randi() % (max_damage - min_damage)) + min_damage
+		var damage = (randi() % (max_damage - min_damage)) + min_damage + strength
 		var killed = entity.take_damage(damage)
 		if killed:
 			log_line("Killed " + entity.display_name)

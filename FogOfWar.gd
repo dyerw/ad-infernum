@@ -3,6 +3,7 @@ extends TileMap
 onready var MapGenUtil = preload("res://utils/MapGen.gd")
 
 var previously_seen_tiles = []
+var visible_tiles = []
 
 func _transform_octant(row: int, col: int, octant: int) -> Vector2:
 	match octant:
@@ -87,7 +88,6 @@ func _get_visble_tiles_from_positions(positions: Array, map) -> Array:
 func _get_visible_tiles(pos: Vector2, map) -> Array:
 	var visible_tiles = [pos]
 	
-	print("------")
 	for octant in range(8):
 		var shadow_line: Array = [] # :: Array Vector2
 		var full_shadow = false
@@ -95,14 +95,12 @@ func _get_visible_tiles(pos: Vector2, map) -> Array:
 		for row in range(10000):
 			var transformed_pos = pos + _transform_octant(row, 0, octant)
 			if not MapGenUtil.is_in_bounds(transformed_pos, map):
-				print(transformed_pos)
 				break
 	
 			for col in range(row + 1):
 				var _transformed_pos = pos + _transform_octant(row, col, octant)
 				
 				if not MapGenUtil.is_in_bounds(_transformed_pos, map):
-					print(_transformed_pos)
 					break
 				
 				if full_shadow:
@@ -160,12 +158,20 @@ func _get_tiles_visible_from_entities(map, entities):
 				visible_tiles.push_back(tile)
 	return visible_tiles
 
+func hide_entities(entities):
+	for e in entities:
+		var entity_pos = Vector2(e.gridX, e.gridY)
+		if visible_tiles.has(entity_pos):
+			e.visible = true
+		else:
+			e.visible = false
+
 func draw_fog_of_war(map, entities):
 	var positions = []
 	for e in entities:
 		positions.push_back(Vector2(e.gridX, e.gridY))
 	
-	var visible_tiles = _get_visble_tiles_from_positions(positions, map)
+	visible_tiles = _get_visble_tiles_from_positions(positions, map)
 	previously_seen_tiles += visible_tiles
 	for x in range(map.size()):
 		for y in range(map[x].size()):

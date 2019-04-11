@@ -172,6 +172,7 @@ func _unhandled_input(event):
 			user_input_blocked = true
 			yield(selected_entity.move_along_path(path, self), "completed")
 			FogOfWar.draw_fog_of_war(map, entities)
+			FogOfWar.hide_entities(enemy_entities)
 			user_input_blocked = false
 			_deselect_entity()
 			delete_movement_path()
@@ -198,7 +199,6 @@ func _place_player_units_in_room(room):
 		var p = Rand.choose(positions)
 		var n = Rand.choose(names)
 		_add_player_unit(p.x, p.y, n)
-		print(p)
 		positions.remove(positions.find(p))
 
 func _place_enemy_units_in_room(room):
@@ -270,6 +270,7 @@ func _ready():
 			_place_enemy_units_in_room(room)
 	
 	FogOfWar.draw_fog_of_war(map, entities)
+	FogOfWar.hide_entities(enemy_entities)
 
 func kill_entity(entity):
 	unblock_pathing_to_point(Vector2(entity.gridX, entity.gridY))

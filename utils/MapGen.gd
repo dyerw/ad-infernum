@@ -155,7 +155,6 @@ func _connect_regions(area):
 			if Rand.one_in(extra_connector_chance):
 				area[other_connector.x][other_connector.y] = Tiles.FLOOR
 		connectors = new_connectors
-	print(merged)
 
 func _remove_dead_ends(area):
 	var done = false
