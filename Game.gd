@@ -25,6 +25,7 @@ var _path_tile_indicator_points = []
 var _path_tile_indicators = []
 
 onready var DungeonMap = get_node("DungeonMap")
+onready var FogOfWar = get_node("FogOfWar")
 onready var Entity = preload("res://scenes/Entity.tscn")
 onready var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
 onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
@@ -170,6 +171,7 @@ func _unhandled_input(event):
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
 			user_input_blocked = true
 			yield(selected_entity.move_along_path(path, self), "completed")
+			FogOfWar.draw_fog_of_war(map, entities)
 			user_input_blocked = false
 			_deselect_entity()
 			delete_movement_path()
@@ -256,6 +258,7 @@ func _ready():
 	
 	var map_gen = MapGenUtil.new()
 	map = map_gen.generate(map_width, map_height)
+	
 	DungeonMap.draw_map(map)
 	_initialize_astar(map)
 	
@@ -265,6 +268,8 @@ func _ready():
 	for room in rooms:
 		if Rand.one_in(5):
 			_place_enemy_units_in_room(room)
+	
+	FogOfWar.draw_fog_of_war(map, entities)
 
 func kill_entity(entity):
 	unblock_pathing_to_point(Vector2(entity.gridX, entity.gridY))

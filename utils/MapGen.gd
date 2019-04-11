@@ -184,12 +184,13 @@ func generate(width, height):
 		return
 	
 	var area = _fill_area(width, height, Tiles.WALL)
+
 	for x in range(area.size()):
 		var region_column = []
 		for y in range(area.size()):
 			 region_column.push_back(-1)
 		_regions.push_back(region_column)
-	
+
 	_add_rooms(area)
 	
 	for x in range(1, width - 1, 2):
@@ -267,6 +268,9 @@ static func get_movement_cost(tile) -> int:
 			return 99999
 	print(String(tile) + " tile has no movement point value!!!")
 	return -1
+
+static func is_in_bounds(pos, map) -> bool:
+	return pos.x >= 0 and pos.x < map.size() and pos.y >= 0 and pos.y < map[0].size()
 
 static func is_passable(tile) -> bool:
 	if tile == Tiles.FLOOR:

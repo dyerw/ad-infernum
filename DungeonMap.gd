@@ -2,19 +2,22 @@ extends TileMap
 
 const MapGenUtil = preload("utils/MapGen.gd")
 
+const FLOOR_TILE = 33
+const WALL_TILE = 18
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass
 
 func draw_map(map):
-	for x in range(0, map.size()):
-		for y in range(0, map[0].size()):
+	for x in range(map.size()):
+		for y in range(map[0].size()):
 			var tile
 			match map[x][y]:
 				MapGenUtil.Tiles.FLOOR:
-					tile = 33
+					tile = FLOOR_TILE
 				MapGenUtil.Tiles.WALL:
-					tile = 18
+					tile = WALL_TILE
 				MapGenUtil.Tiles.MARK:
 					tile = 1
 
