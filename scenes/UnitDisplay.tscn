@@ -5,6 +5,7 @@
 [ext_resource path="res://fonts/Pixellari.tres" type="DynamicFont" id=3]
 
 [node name="UnitDisplay" type="Control"]
+editor/display_folded = true
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_right = -874.0

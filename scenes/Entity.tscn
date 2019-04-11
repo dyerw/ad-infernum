@@ -2,7 +2,7 @@
 
 [ext_resource path="res://scenes/Entity.gd" type="Script" id=1]
 [ext_resource path="res://scenes/ClickableArea2D.gd" type="Script" id=2]
-[ext_resource path="res://dungeon_tiles.png" type="Texture" id=3]
+[ext_resource path="res://crusader.png" type="Texture" id=3]
 [ext_resource path="res://audio/move.wav" type="AudioStream" id=4]
 [ext_resource path="res://scenes/MoveAudio.gd" type="Script" id=5]
 [ext_resource path="res://audio/take_damage.wav" type="AudioStream" id=6]
@@ -22,7 +22,6 @@ script = ExtResource( 2 )
 [node name="EntitySprite" type="Sprite" parent="ClickableArea2D"]
 texture = ExtResource( 3 )
 centered = false
-region_enabled = true
 region_rect = Rect2( 48, 96, 16, 16 )
 
 [node name="ClickableCollisionShape2D" type="CollisionShape2D" parent="ClickableArea2D"]
