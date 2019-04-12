@@ -269,7 +269,7 @@ static func get_movement_cost(tile) -> int:
 	return -1
 
 static func is_in_bounds(pos, map) -> bool:
-	return pos.x >= 0 and pos.x < map.size() and pos.y >= 0 and pos.y < map[0].size()
+	return pos.x >= 0 and pos.x < map.width and pos.y >= 0 and pos.y < map.height
 
 static func is_passable(tile) -> bool:
 	if tile == Tiles.FLOOR:

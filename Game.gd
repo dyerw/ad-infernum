@@ -7,6 +7,7 @@ var attack_cursor = load("res://attack_cursor.png")
 
 const MapGenUtil = preload("utils/MapGen.gd")
 const Rand = preload("utils/Rand.gd")
+const Map = preload("res://scripts/Map.gd")
 
 const map_height = 31
 const map_width = 51
@@ -57,7 +58,7 @@ func _cantor_pair(a, b):
 	return (a + b) * (a + b + 1) / 2 + a
 
 func pos_is_unobstructed(pos: Vector2) -> bool:
-	return not is_entity_at_position(pos) and MapGenUtil.is_passable(map[pos.x][pos.y])
+	return not is_entity_at_position(pos) and MapGenUtil.is_passable(map.get_tile(pos))
 
 func block_pathing_to_point(pos: Vector2) -> void:
 	astar.set_point_weight_scale(_cantor_pair(pos.x, pos.y), 99998)
@@ -65,7 +66,7 @@ func block_pathing_to_point(pos: Vector2) -> void:
 func unblock_pathing_to_point(pos: Vector2) -> void:
 	astar.set_point_weight_scale(
 		_cantor_pair(pos.x, pos.y), 
-		MapGenUtil.get_movement_cost(map[pos.x][pos.y])
+		MapGenUtil.get_movement_cost(map.get_tile(pos))
 	)
 
 func _connect_points(_map, from: Vector2, to: Vector2) -> void:
@@ -161,12 +162,12 @@ func _unhandled_input(event):
     and event.is_pressed():
 		var map_position = DungeonMap.world_to_map(event.position)
 		
-		if map_position.x >= map_width or map_position.y >= map_height:
+		if map_position.x >= map.width or map_position.y >= map.height:
 			return
 		
 		# Move
 		if selected_entity and not is_entity_at_position(map_position) \
-		and MapGenUtil.is_passable(map[map_position.x][map_position.y]):
+		and MapGenUtil.is_passable(map.get_tile(map_position)):
 			get_tree().set_input_as_handled()
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
 			user_input_blocked = true
@@ -254,11 +255,14 @@ func _ready():
 	unit_display = get_node("UnitDisplay")
 	game_log = get_node("Log")
 	
-	var map_gen = MapGenUtil.new()
-	map = map_gen.generate(map_width, map_height)
+	map = Map.new()
+	map.init(map_width, map_height)
 	
-	DungeonMap.draw_map(map)
-	_initialize_astar(map)
+	var map_gen = MapGenUtil.new()
+	map.tiles = map_gen.generate(map_width, map_height)
+	
+	DungeonMap.draw_map(map.tiles)
+	_initialize_astar(map.tiles)
 	
 	var rooms = map_gen.rooms.duplicate()
 	_place_player_units_in_room(rooms[0])

@@ -89,7 +89,7 @@ func _add_shadow_to_line(shadow: Vector2, line: Array) -> void:
 func _line_is_full_shadow(line):
 	return line.size() == 1 and line[0].x == 0 and line[0].y == 1
 
-func _get_visble_tiles_from_positions(positions: Array, map) -> Array:
+func _get_visible_tiles_from_positions(positions: Array, map) -> Array:
 	var visible_tiles = []
 	for pos in positions:
 		visible_tiles += _get_visible_tiles(pos, map)
@@ -122,7 +122,7 @@ func _get_visible_tiles(pos: Vector2, map) -> Array:
 					if is_visible:
 						visible_tiles.push_back(_transformed_pos)
 					
-					if is_visible and map[_transformed_pos.x][_transformed_pos.y] == MapGenUtil.Tiles.WALL:
+					if is_visible and map.get_tile(_transformed_pos) == MapGenUtil.Tiles.WALL:
 						_add_shadow_to_line(projection, shadow_line)
 						full_shadow = _line_is_full_shadow(shadow_line)
 	
@@ -141,14 +141,14 @@ func draw_fog_of_war(map, entities):
 	for e in entities:
 		positions.push_back(Vector2(e.gridX, e.gridY))
 	
-	visible_tiles = _get_visble_tiles_from_positions(positions, map)
+	visible_tiles = _get_visible_tiles_from_positions(positions, map)
 	for e in entities:
 		visible_tiles.push_back(Vector2(e.gridX, e.gridY))
 	for t in visible_tiles:
 		if not previously_seen_tiles.has(t):
 			previously_seen_tiles.push_back(t)
-	for x in range(map.size()):
-		for y in range(map[x].size()):
+	for x in range(map.width):
+		for y in range(map.height):
 			var p = Vector2(x, y)
 			if previously_seen_tiles.has(p):
 				if visible_tiles.has(p):
