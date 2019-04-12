@@ -10,7 +10,9 @@ func connect_entities(entities):
 	for entity in entities:
 		entity.connect("entity_moved", self, "_on_entity_moved")
 
-func _on_entity_moved():
+func _on_entity_moved(entity):
+	if get_parent().entities.has(entity):
+		draw_fog_of_war(get_parent().map, get_parent().entities)
 	_update_entities_visibility(get_parent().enemy_entities)
 
 func _transform_octant(row: int, col: int, octant: int) -> Vector2:
@@ -142,7 +144,9 @@ func draw_fog_of_war(map, entities):
 	visible_tiles = _get_visble_tiles_from_positions(positions, map)
 	for e in entities:
 		visible_tiles.push_back(Vector2(e.gridX, e.gridY))
-	previously_seen_tiles += visible_tiles
+	for t in visible_tiles:
+		if not previously_seen_tiles.has(t):
+			previously_seen_tiles.push_back(t)
 	for x in range(map.size()):
 		for y in range(map[x].size()):
 			var p = Vector2(x, y)

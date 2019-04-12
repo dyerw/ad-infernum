@@ -121,7 +121,7 @@ func attack(entity, distance):
 
 func _move(x: int, y: int, pathing_delegate):
 	_move_without_sound(x, y, pathing_delegate)
-	emit_signal("entity_moved")
+	emit_signal("entity_moved", self)
 	move_audio.play_audio()
 
 func _move_without_sound(x: int, y: int, pathing_delegate):

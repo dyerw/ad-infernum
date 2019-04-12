@@ -171,7 +171,6 @@ func _unhandled_input(event):
 			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
 			user_input_blocked = true
 			yield(selected_entity.move_along_path(path, self), "completed")
-			FogOfWar.draw_fog_of_war(map, entities)
 			user_input_blocked = false
 			_deselect_entity()
 			delete_movement_path()
