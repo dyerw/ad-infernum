@@ -266,7 +266,7 @@ func _ready():
 	_place_player_units_in_room(rooms[0])
 	rooms.pop_front()
 	for room in rooms:
-		if Rand.one_in(5):
+		if Rand.one_in(2):
 			_place_enemy_units_in_room(room)
 	
 	FogOfWar.draw_fog_of_war(map, entities)
@@ -301,4 +301,5 @@ func end_turn_button_pressed():
 	user_input_blocked = true
 	for entity in all_entities():
 		yield(entity.end_turn(self), "completed")
+	FogOfWar.hide_entities(enemy_entities)
 	user_input_blocked = false
