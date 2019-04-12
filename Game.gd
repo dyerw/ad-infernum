@@ -8,15 +8,14 @@ var attack_cursor = load("res://attack_cursor.png")
 const MapGenUtil = preload("utils/MapGen.gd")
 const Rand = preload("utils/Rand.gd")
 const Map = preload("res://scripts/Map.gd")
+const Units = preload("res://scripts/Units.gd")
 
 const map_height = 31
 const map_width = 51
 
 var map
 var astar
-var selected_entity
-var entities = []
-var enemy_entities = []
+var units
 var unit_display
 var game_log
 
@@ -33,32 +32,12 @@ onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
 onready var UnitDisplay = preload("res://scenes/UnitDisplay.tscn")
 onready var Log = preload("res://scenes/Log.tscn")
 
-func get_entity_at_position(pos: Vector2):
-	for entity in all_entities():
-		if entity.gridX == pos.x and entity.gridY == pos.y:
-			return entity
-
-func is_enemy_entity_at_position(pos: Vector2) -> bool:
-	for entity in enemy_entities:
-		if entity.gridX == pos.x and entity.gridY == pos.y:
-			return true
-	return false
-
-func is_player_entity_at_position(pos: Vector2) -> bool:
-	for entity in entities:
-		if entity.gridX == pos.x and entity.gridY == pos.y:
-			return true
-	return false
-
-func is_entity_at_position(pos: Vector2) -> bool:
-	return is_enemy_entity_at_position(pos) or is_player_entity_at_position(pos)
-
 # Generates a unique int for a given pair, a uuid for a Vector2
 func _cantor_pair(a, b):
 	return (a + b) * (a + b + 1) / 2 + a
 
 func pos_is_unobstructed(pos: Vector2) -> bool:
-	return not is_entity_at_position(pos) and MapGenUtil.is_passable(map.get_tile(pos))
+	return not units.is_unit_at_position(pos) and MapGenUtil.is_passable(map.get_tile(pos))
 
 func block_pathing_to_point(pos: Vector2) -> void:
 	astar.set_point_weight_scale(_cantor_pair(pos.x, pos.y), 99998)
@@ -133,24 +112,24 @@ func _unhandled_input(event):
 		var map_position = DungeonMap.world_to_map(event.position)
 		
 		# Cursor updates
-		if is_player_entity_at_position(map_position):
+		if units.is_player_unit_at_position(map_position):
 			Input.set_custom_mouse_cursor(selection_cursor)
 		
-		if not is_entity_at_position(map_position):
+		if not units.is_unit_at_position(map_position):
 			Input.set_custom_mouse_cursor(cursor)
 		
-		if selected_entity and is_enemy_entity_at_position(map_position):
+		if units.selected_unit and units.is_enemy_unit_at_position(map_position):
 			Input.set_custom_mouse_cursor(attack_cursor)
 		
 		# Path indicator updates
-		if selected_entity and not is_entity_at_position(map_position):
+		if units.selected_unit and not units.is_unit_at_position(map_position):
 			var path = get_vector_path(
-				Vector2(selected_entity.gridX, selected_entity.gridY), 
+				units.selected_unit.grid_pos, 
 				map_position
 			)
 			if not path == _path_tile_indicator_points:
 				_path_tile_indicator_points = path
-				redraw_movement_path(path, selected_entity.current_movement_points)
+				redraw_movement_path(path, units.selected_unit.current_movement_points)
 	
 	if event is InputEventMouseButton \
 	and event.button_index == BUTTON_RIGHT \
@@ -166,66 +145,29 @@ func _unhandled_input(event):
 			return
 		
 		# Move
-		if selected_entity and not is_entity_at_position(map_position) \
+		if units.selected_unit and not units.is_unit_at_position(map_position) \
 		and MapGenUtil.is_passable(map.get_tile(map_position)):
 			get_tree().set_input_as_handled()
-			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
+			var path = get_vector_path(units.selected_unit.grid_pos, map_position)
 			user_input_blocked = true
-			yield(selected_entity.move_along_path(path, self), "completed")
+			yield(units.selected_unit.move_along_path(path, self), "completed")
 			user_input_blocked = false
 			_deselect_entity()
 			delete_movement_path()
 		
 		# Attack
-		if selected_entity and is_enemy_entity_at_position(map_position):
+		if units.selected_unit and units.is_enemy_unit_at_position(map_position):
 			get_tree().set_input_as_handled()
-			var path = get_vector_path(Vector2(selected_entity.gridX, selected_entity.gridY), map_position)
-			var enemy = get_entity_at_position(map_position)
-			selected_entity.attack(enemy, path.size())
+			var path = get_vector_path(units.selected_unit.grid_pos, map_position)
+			var enemy = units.get_unit_at_position(map_position)
+			units.selected_unit.attack(enemy, path.size())
 			_deselect_entity()
-
-func _get_all_positions_in_rect(rect: Rect2) -> Array:
-	var positions = []
-	for x in range(rect.position.x, rect.position.x + rect.size.x):
-		for y in range(rect.position.y, rect.position.y + rect.size.y):
-			positions.push_back(Vector2(x, y))
-	return positions
-
-func _place_player_units_in_room(room):
-	var names = ["Matt", "Liam", "Dave", "Beth", "Tommy", "Harold", "Pikachu"]
-	var positions = _get_all_positions_in_rect(room)
-	for i in range(3):
-		var p = Rand.choose(positions)
-		var n = Rand.choose(names)
-		_add_player_unit(p.x, p.y, n)
-		positions.remove(positions.find(p))
-
-func _place_enemy_units_in_room(room):
-	var positions = _get_all_positions_in_rect(room)
-	for i in range(Rand.int_range(3, 5)):
-		var p = Rand.choose(positions)
-		_add_enemy_unit(p.x, p.y, "Pagan")
-		positions.remove(positions.find(p))
-
-func _add_player_unit(x, y, name):
-	var e = Entity.instance()
-	e.init(x, y, name)
-	add_child(e)
-	entities.push_back(e)
-	return e
-
-func _add_enemy_unit(x, y, name):
-	var e = EnemyEntity.instance()
-	e.init(x, y, name)
-	add_child(e)
-	enemy_entities.push_back(e)
-	return e
 
 func get_nearest_player_unit(pos: Vector2):
 	var min_distance = 9999
 	var closest_entity
-	for entity in entities:
-		var path = get_vector_path(pos, Vector2(entity.gridX, entity.gridY))
+	for entity in units.get_player_units():
+		var path = get_vector_path(pos, entity.grid_pos)
 		if path.size() < min_distance:
 			closest_entity = entity
 			min_distance = path.size()
@@ -234,8 +176,8 @@ func get_nearest_player_unit(pos: Vector2):
 func get_path_to_nearest_player_unit(pos: Vector2) -> PoolVector2Array:
 	var min_distance = 999999
 	var closest_path = null
-	for entity in entities:
-		var path = get_vector_path(pos, Vector2(entity.gridX, entity.gridY))
+	for entity in units.get_player_units():
+		var path = get_vector_path(pos, entity.grid_pos)
 		if path.size() < min_distance:
 			closest_path = path
 			min_distance = path.size()
@@ -258,6 +200,9 @@ func _ready():
 	map = Map.new()
 	map.init(map_width, map_height)
 	
+	units = Units.new()
+	units.init(self)
+	
 	var map_gen = MapGenUtil.new()
 	map.tiles = map_gen.generate(map_width, map_height)
 	
@@ -265,34 +210,22 @@ func _ready():
 	_initialize_astar(map.tiles)
 	
 	var rooms = map_gen.rooms.duplicate()
-	_place_player_units_in_room(rooms[0])
+	units.place_player_units_in_rect(rooms[0])
 	rooms.pop_front()
 	for room in rooms:
 		if Rand.one_in(2):
-			_place_enemy_units_in_room(room)
+			units.place_enemy_units_in_rect(room)
 	
-	FogOfWar.draw_fog_of_war(map, entities)
-	FogOfWar.connect_entities(all_entities())
-
-func kill_entity(entity):
-	unblock_pathing_to_point(Vector2(entity.gridX, entity.gridY))
-	remove_child(entity)
-	if not (enemy_entities.find(entity) == -1):
-		enemy_entities.remove(enemy_entities.find(entity))
-	
-	if not (entities.find(entity) == -1):
-		entities.remove(entities.find(entity))
-
-func all_entities():
-	return entities + enemy_entities
+	FogOfWar.draw_fog_of_war(map, units.get_player_units())
+	FogOfWar.connect_entities(units.units)
 
 func _deselect_entity():
 	delete_movement_path()
-	selected_entity = null
+	units.selected_unit = null
 	unit_display.clear_entity_details()
 
 func _select_entity(node):
-	selected_entity = node
+	units.selected_unit = node
 	unit_display.show_entity_details(node)
 
 func child_clicked(node):
@@ -301,6 +234,6 @@ func child_clicked(node):
 func end_turn_button_pressed():
 	_deselect_entity()
 	user_input_blocked = true
-	for entity in all_entities():
-		yield(entity.end_turn(self), "completed")
+	for unit in units.units:
+		yield(unit.end_turn(self), "completed")
 	user_input_blocked = false

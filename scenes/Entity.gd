@@ -14,10 +14,10 @@ var death_audio
 var health_bar_sprite
 var movement_bar_sprite
 
-var gridX
-var gridY
+var grid_pos: Vector2
 var display_name
 var id
+var player_controlled = true
 
 var current_movement_points setget _set_current_movement_points
 var current_health setget _set_current_health
@@ -35,8 +35,7 @@ var min_damage = 3
 var attack_range = 1
 
 func init(x, y, _display_name):
-	gridX = x
-	gridY = y
+	grid_pos = Vector2(x, y)
 	display_name = _display_name
 
 func _set_current_movement_points(n):
@@ -68,7 +67,7 @@ func move_along_path(path: Array, pathing_delegate):
 	self.current_movement_points -= path_cost
 	
 	for point in affordable_path:
-		_move(point.x, point.y, pathing_delegate)
+		_move(point, pathing_delegate)
 		yield(get_tree().create_timer(0.1), "timeout")
 	
 	yield(get_tree(), "idle_frame")
@@ -79,7 +78,7 @@ func log_line(line):
 func take_damage(damage: int) -> bool:
 	if damage >= self.current_health:
 		death_audio.play()
-		get_parent().kill_entity(self)
+		get_parent().units.kill_unit(self)
 		return true
 	else:
 		take_damage_audio.play()
@@ -119,20 +118,18 @@ func attack(entity, distance):
 	
 	current_attack_points -= 1
 
-func _move(x: int, y: int, pathing_delegate):
-	_move_without_sound(x, y, pathing_delegate)
+func _move(pos: Vector2, pathing_delegate):
+	_move_without_sound(pos, pathing_delegate)
 	emit_signal("entity_moved", self)
 	move_audio.play_audio()
 
-func _move_without_sound(x: int, y: int, pathing_delegate):
-	var oldX = gridX
-	var oldY = gridY
-	gridX = x
-	gridY = y
-	self.position.x = gridX * 16
-	self.position.y = gridY * 16
-	pathing_delegate.unblock_pathing_to_point(Vector2(oldX, oldY))
-	pathing_delegate.block_pathing_to_point(Vector2(gridX, gridY))
+func _move_without_sound(pos: Vector2, pathing_delegate):
+	var old_pos = grid_pos
+	grid_pos = pos
+	self.position.x = grid_pos.x * 16
+	self.position.y = grid_pos.y * 16
+	pathing_delegate.unblock_pathing_to_point(old_pos)
+	pathing_delegate.block_pathing_to_point(grid_pos)
 
 func on_click():
 	get_parent().child_clicked(self)
@@ -157,4 +154,4 @@ func _ready():
 	self.current_health = max_health
 	self.current_movement_points = max_movement_points
 	current_attack_points = max_attack_points
-	_move_without_sound(gridX, gridY, get_parent())
+	_move_without_sound(grid_pos, get_parent())

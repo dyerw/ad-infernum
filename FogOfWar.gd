@@ -11,9 +11,9 @@ func connect_entities(entities):
 		entity.connect("entity_moved", self, "_on_entity_moved")
 
 func _on_entity_moved(entity):
-	if get_parent().entities.has(entity):
-		draw_fog_of_war(get_parent().map, get_parent().entities)
-	_update_entities_visibility(get_parent().enemy_entities)
+	if entity.player_controlled:
+		draw_fog_of_war(get_parent().map, get_parent().units.get_player_units())
+	_update_entities_visibility(get_parent().units.get_enemy_units())
 
 func _transform_octant(row: int, col: int, octant: int) -> Vector2:
 	match octant:
@@ -130,8 +130,7 @@ func _get_visible_tiles(pos: Vector2, map) -> Array:
 
 func _update_entities_visibility(entities):
 	for e in entities:
-		var entity_pos = Vector2(e.gridX, e.gridY)
-		if visible_tiles.has(entity_pos):
+		if visible_tiles.has(e.grid_pos):
 			e.visible = true
 		else:
 			e.visible = false
@@ -139,11 +138,11 @@ func _update_entities_visibility(entities):
 func draw_fog_of_war(map, entities):
 	var positions = []
 	for e in entities:
-		positions.push_back(Vector2(e.gridX, e.gridY))
+		positions.push_back(e.grid_pos)
 	
 	visible_tiles = _get_visible_tiles_from_positions(positions, map)
 	for e in entities:
-		visible_tiles.push_back(Vector2(e.gridX, e.gridY))
+		visible_tiles.push_back(e.grid_pos)
 	for t in visible_tiles:
 		if not previously_seen_tiles.has(t):
 			previously_seen_tiles.push_back(t)
