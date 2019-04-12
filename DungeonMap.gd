@@ -2,8 +2,8 @@ extends TileMap
 
 const MapGenUtil = preload("utils/MapGen.gd")
 
-const FLOOR_TILE = 33
-const WALL_TILE = 18
+const FLOOR_TILE = 1
+const WALL_TILE = 0
 
 # Called when the node enters the scene tree for the first time.
 func _ready():

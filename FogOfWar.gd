@@ -176,6 +176,6 @@ func draw_fog_of_war(map, entities):
 	for x in range(map.size()):
 		for y in range(map[x].size()):
 			if not previously_seen_tiles.has(Vector2(x, y)):
-				set_cell(x, y, 116)
+				set_cell(x, y, 2)
 			else:
 				set_cell(x, y, -1)
