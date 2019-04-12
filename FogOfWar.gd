@@ -5,6 +5,14 @@ onready var MapGenUtil = preload("res://utils/MapGen.gd")
 var previously_seen_tiles = []
 var visible_tiles = []
 
+func connect_entities(entities):
+	_update_entities_visibility(entities)
+	for entity in entities:
+		entity.connect("entity_moved", self, "_on_entity_moved")
+
+func _on_entity_moved():
+	_update_entities_visibility(get_parent().enemy_entities)
+
 func _transform_octant(row: int, col: int, octant: int) -> Vector2:
 	match octant:
 		0: return Vector2(col, -row)
@@ -117,48 +125,8 @@ func _get_visible_tiles(pos: Vector2, map) -> Array:
 						full_shadow = _line_is_full_shadow(shadow_line)
 	
 	return visible_tiles
-	
 
-func _line_intersects_tile(from: Vector2, to: Vector2, tile: Vector2) -> bool:
-	# Check if it hits the sides of a tile
-	if Geometry.segment_intersects_segment_2d(from, to, tile, Vector2(tile.x + 1, tile.y)):
-		return true
-	if Geometry.segment_intersects_segment_2d(from, to, tile, Vector2(tile.x + 1, tile.y + 1)):
-		return true
-	if Geometry.segment_intersects_segment_2d(from, to, tile, Vector2(tile.x, tile.y + 1)):
-		return true
-	return false
-
-func _tiles_visible_from_entity(map, entity, walls):
-	var visible_tiles = []
-	
-	var entity_center_point = Vector2(entity.gridX + 0.5, entity.gridY + 0.5)
-	for x in map.size():
-		for y in map[x].size():
-			var p = Vector2(x + 0.5, y + 0.5)
-			var is_visible = true
-			for wall_tile in walls:
-				if not wall_tile == Vector2(x, y):
-					if _line_intersects_tile(entity_center_point, p, wall_tile):
-						is_visible = false
-			if is_visible:
-				visible_tiles.push_back(Vector2(x, y))
-	return visible_tiles
-
-func _get_tiles_visible_from_entities(map, entities):
-	var visible_tiles = []
-	var walls = []
-	for x in range(map.size()):
-		for y in range(map[x].size()):
-			if map[x][y] == MapGenUtil.Tiles.WALL:
-				walls.push_back(Vector2(x, y))
-	for entity in entities:
-		for tile in _tiles_visible_from_entity(map, entity, walls):
-			if not visible_tiles.has(tile):
-				visible_tiles.push_back(tile)
-	return visible_tiles
-
-func hide_entities(entities):
+func _update_entities_visibility(entities):
 	for e in entities:
 		var entity_pos = Vector2(e.gridX, e.gridY)
 		if visible_tiles.has(entity_pos):
@@ -172,10 +140,16 @@ func draw_fog_of_war(map, entities):
 		positions.push_back(Vector2(e.gridX, e.gridY))
 	
 	visible_tiles = _get_visble_tiles_from_positions(positions, map)
+	for e in entities:
+		visible_tiles.push_back(Vector2(e.gridX, e.gridY))
 	previously_seen_tiles += visible_tiles
 	for x in range(map.size()):
 		for y in range(map[x].size()):
-			if not previously_seen_tiles.has(Vector2(x, y)):
-				set_cell(x, y, 2)
+			var p = Vector2(x, y)
+			if previously_seen_tiles.has(p):
+				if visible_tiles.has(p):
+					set_cell(x, y, -1)
+				else:
+					set_cell(x, y, 3)
 			else:
-				set_cell(x, y, -1)
+				set_cell(x, y, 2)

@@ -172,7 +172,6 @@ func _unhandled_input(event):
 			user_input_blocked = true
 			yield(selected_entity.move_along_path(path, self), "completed")
 			FogOfWar.draw_fog_of_war(map, entities)
-			FogOfWar.hide_entities(enemy_entities)
 			user_input_blocked = false
 			_deselect_entity()
 			delete_movement_path()
@@ -270,7 +269,7 @@ func _ready():
 			_place_enemy_units_in_room(room)
 	
 	FogOfWar.draw_fog_of_war(map, entities)
-	FogOfWar.hide_entities(enemy_entities)
+	FogOfWar.connect_entities(all_entities())
 
 func kill_entity(entity):
 	unblock_pathing_to_point(Vector2(entity.gridX, entity.gridY))
@@ -301,5 +300,4 @@ func end_turn_button_pressed():
 	user_input_blocked = true
 	for entity in all_entities():
 		yield(entity.end_turn(self), "completed")
-	FogOfWar.hide_entities(enemy_entities)
 	user_input_blocked = false

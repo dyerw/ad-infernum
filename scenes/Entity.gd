@@ -1,11 +1,16 @@
 extends Node2D
 
+# Signals
+signal entity_moved
+
+# Audio
 var move_audio
 var take_damage_audio
 var miss_audio
 var hit_audio
 var death_audio
 
+# Sprites
 var health_bar_sprite
 var movement_bar_sprite
 
@@ -116,6 +121,7 @@ func attack(entity, distance):
 
 func _move(x: int, y: int, pathing_delegate):
 	_move_without_sound(x, y, pathing_delegate)
+	emit_signal("entity_moved")
 	move_audio.play_audio()
 
 func _move_without_sound(x: int, y: int, pathing_delegate):
