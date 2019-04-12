@@ -4,7 +4,7 @@
 [ext_resource path="res://scenes/EnemyEntity.gd" type="Script" id=2]
 [ext_resource path="res://pagan.png" type="Texture" id=3]
 
-[node name="EnemyEntity" index="0" instance=ExtResource( 1 )]
+[node name="EnemyEntity" instance=ExtResource( 1 )]
 script = ExtResource( 2 )
 
 [node name="EntitySprite" parent="ClickableArea2D" index="0"]

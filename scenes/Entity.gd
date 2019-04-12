@@ -6,13 +6,16 @@ var miss_audio
 var hit_audio
 var death_audio
 
+var health_bar_sprite
+var movement_bar_sprite
+
 var gridX
 var gridY
 var display_name
 var id
 
-var current_movement_points
-var current_health
+var current_movement_points setget _set_current_movement_points
+var current_health setget _set_current_health
 var current_attack_points
 
 # Stats
@@ -31,23 +34,33 @@ func init(x, y, _display_name):
 	gridY = y
 	display_name = _display_name
 
+func _set_current_movement_points(n):
+	if movement_bar_sprite:
+		movement_bar_sprite.scale = Vector2(float(n) / float(max_movement_points) ,1)
+	current_movement_points = n
+
+func _set_current_health(n):
+	if health_bar_sprite:
+		health_bar_sprite.scale = Vector2(float(n) / float(max_health), 1)
+	current_health = n
+
 func move_along_path(path: Array, pathing_delegate):
-	if current_movement_points == 0:
+	if self.current_movement_points == 0:
 		yield(get_tree(), "idle_frame")
 		return
 	
 	var affordable_path = []
 	var path_cost = 0
-	while path_cost <= current_movement_points and path.size() > 0:
+	while path_cost <= self.current_movement_points and path.size() > 0:
 		var next_point_cost = pathing_delegate.get_movement_cost_for_point(path[0])
 		path_cost += next_point_cost
 		affordable_path.push_back(path[0])
 		path.remove(0)
 	
-	if path_cost > current_movement_points:
+	if path_cost > self.current_movement_points:
 		affordable_path.pop_back()
 
-	current_movement_points -= path_cost
+	self.current_movement_points -= path_cost
 	
 	for point in affordable_path:
 		_move(point.x, point.y, pathing_delegate)
@@ -59,13 +72,13 @@ func log_line(line):
 	get_parent().log_line(line)
 
 func take_damage(damage: int) -> bool:
-	if damage >= current_health:
+	if damage >= self.current_health:
 		death_audio.play()
 		get_parent().kill_entity(self)
 		return true
 	else:
 		take_damage_audio.play()
-		current_health -= damage
+		self.current_health -= damage
 		return false
 
 func attack(entity, distance):
@@ -120,17 +133,22 @@ func on_click():
 
 func end_turn(pathing_delegate):
 	yield(get_tree(), "idle_frame")
-	current_movement_points = max_movement_points
-	current_attack_points = max_attack_points
+	self.current_movement_points = max_movement_points
+	self.current_attack_points = max_attack_points
 
 func _ready():
+	# Audio
 	move_audio = get_node("MoveAudio")
 	take_damage_audio = get_node("TakeDamageAudio")
 	miss_audio = get_node("MissAudio")
 	hit_audio = get_node("HitAudio")
 	death_audio = get_node("DeathAudio")
 	
-	current_health = max_health
-	current_movement_points = max_movement_points
+	# Sprites
+	health_bar_sprite = get_node("HealthBarSprite")
+	movement_bar_sprite = get_node("MovementBarSprite")
+	
+	self.current_health = max_health
+	self.current_movement_points = max_movement_points
 	current_attack_points = max_attack_points
 	_move_without_sound(gridX, gridY, get_parent())
