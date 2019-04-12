@@ -205,7 +205,7 @@ func _place_enemy_units_in_room(room):
 	var positions = _get_all_positions_in_rect(room)
 	for i in range(Rand.int_range(3, 5)):
 		var p = Rand.choose(positions)
-		_add_enemy_unit(p.x, p.y, "Skeleton")
+		_add_enemy_unit(p.x, p.y, "Pagan")
 		positions.remove(positions.find(p))
 
 func _add_player_unit(x, y, name):
