@@ -2,6 +2,7 @@ extends Node2D
 
 # Signals
 signal entity_moved
+signal update_ui
 
 # Audio
 var move_audio
@@ -23,11 +24,15 @@ var current_movement_points setget _set_current_movement_points
 var current_health setget _set_current_health
 var current_attack_points
 
+var statuses = []
+var abilities = []
+
 # Stats
 var max_movement_points = 5
 var max_health = 10
 var max_attack_points = 1
 var dexterity = 5
+var willpower = 3
 var evade = 5
 var strength = 3
 var max_damage = 6
@@ -40,7 +45,10 @@ func init(x, y, _display_name):
 
 func _set_current_movement_points(n):
 	if movement_bar_sprite:
-		movement_bar_sprite.scale = Vector2(float(n) / float(max_movement_points) ,1)
+		if max_movement_points == 0:
+			movement_bar_sprite.scale = Vector2(0, 1)
+		else:
+			movement_bar_sprite.scale = Vector2(float(n) / float(max_movement_points) ,1)
 	current_movement_points = n
 
 func _set_current_health(n):
@@ -136,8 +144,15 @@ func on_click():
 
 func end_turn(pathing_delegate):
 	yield(get_tree(), "idle_frame")
+	for status in statuses:
+		status.end_turn()
+	for ability in abilities:
+		ability.end_turn()
 	self.current_movement_points = max_movement_points
 	self.current_attack_points = max_attack_points
+
+func ability_used(ability):
+	emit_signal("update_ui")
 
 func _ready():
 	# Audio
@@ -154,4 +169,8 @@ func _ready():
 	self.current_health = max_health
 	self.current_movement_points = max_movement_points
 	current_attack_points = max_attack_points
+	
+	for ability in abilities:
+		ability.connect("ability_used", self, "ability_used", [ability])
+	
 	_move_without_sound(grid_pos, get_parent())

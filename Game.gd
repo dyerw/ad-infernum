@@ -224,6 +224,9 @@ func _deselect_entity():
 	units.selected_unit = null
 	unit_display.clear_entity_details()
 
+func _update_unit_display(unit):
+	unit_display.show_entity_details(unit)
+
 func _select_entity(node):
 	units.selected_unit = node
 	unit_display.show_entity_details(node)

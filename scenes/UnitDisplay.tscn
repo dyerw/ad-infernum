@@ -5,7 +5,6 @@
 [ext_resource path="res://fonts/Pixellari.tres" type="DynamicFont" id=3]
 
 [node name="UnitDisplay" type="Control"]
-editor/display_folded = true
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_right = -874.0
@@ -28,49 +27,56 @@ margin_right = 130.0
 margin_bottom = 16.0
 custom_fonts/font = ExtResource( 3 )
 
-[node name="HealthTextLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="StatusesLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 20.0
 margin_right = 130.0
 margin_bottom = 36.0
 custom_fonts/font = ExtResource( 3 )
-text = "Health"
 
-[node name="HealthPointsLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="HealthTextLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 40.0
 margin_right = 130.0
 margin_bottom = 56.0
 custom_fonts/font = ExtResource( 3 )
+text = "Health"
 
-[node name="MovementTextLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="HealthPointsLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 60.0
 margin_right = 130.0
 margin_bottom = 76.0
 custom_fonts/font = ExtResource( 3 )
-text = "Movement"
 
-[node name="MovementPointsLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="MovementTextLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 80.0
 margin_right = 130.0
 margin_bottom = 96.0
 custom_fonts/font = ExtResource( 3 )
+text = "Movement"
 
-[node name="AttackTextLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="MovementPointsLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 100.0
 margin_right = 130.0
 margin_bottom = 116.0
 custom_fonts/font = ExtResource( 3 )
-text = "Attacks"
 
-[node name="AttackPointsLabel" type="Label" parent="UnitDisplayContainer"]
+[node name="AttackTextLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 120.0
 margin_right = 130.0
 margin_bottom = 136.0
 custom_fonts/font = ExtResource( 3 )
+text = "Attacks"
 
-[node name="StrContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
+[node name="AttackPointsLabel" type="Label" parent="UnitDisplayContainer"]
 margin_top = 140.0
 margin_right = 130.0
 margin_bottom = 156.0
+custom_fonts/font = ExtResource( 3 )
+
+[node name="StrContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
+editor/display_folded = true
+margin_top = 160.0
+margin_right = 130.0
+margin_bottom = 176.0
 
 [node name="StrTextLabel" type="Label" parent="UnitDisplayContainer/StrContainer"]
 margin_right = 30.0
@@ -85,9 +91,10 @@ margin_bottom = 16.0
 custom_fonts/font = ExtResource( 3 )
 
 [node name="DexContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
-margin_top = 160.0
+editor/display_folded = true
+margin_top = 180.0
 margin_right = 130.0
-margin_bottom = 176.0
+margin_bottom = 196.0
 
 [node name="DexTextLabel" type="Label" parent="UnitDisplayContainer/DexContainer"]
 margin_right = 30.0
@@ -102,10 +109,29 @@ margin_bottom = 16.0
 custom_fonts/font = ExtResource( 3 )
 align = 2
 
-[node name="EvdContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
-margin_top = 180.0
+[node name="WillContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
+editor/display_folded = true
+margin_top = 200.0
 margin_right = 130.0
-margin_bottom = 196.0
+margin_bottom = 216.0
+
+[node name="WillTextLabel" type="Label" parent="UnitDisplayContainer/WillContainer"]
+margin_right = 34.0
+margin_bottom = 16.0
+custom_fonts/font = ExtResource( 3 )
+text = "WILL"
+
+[node name="WillPointsLabel" type="Label" parent="UnitDisplayContainer/WillContainer"]
+margin_left = 38.0
+margin_right = 38.0
+margin_bottom = 16.0
+custom_fonts/font = ExtResource( 3 )
+
+[node name="EvdContainer" type="HBoxContainer" parent="UnitDisplayContainer"]
+editor/display_folded = true
+margin_top = 220.0
+margin_right = 130.0
+margin_bottom = 236.0
 
 [node name="EvdTextLabel" type="Label" parent="UnitDisplayContainer/EvdContainer"]
 margin_right = 31.0
@@ -119,10 +145,15 @@ margin_right = 35.0
 margin_bottom = 16.0
 custom_fonts/font = ExtResource( 3 )
 
-[node name="EndTurnButton" type="Button" parent="UnitDisplayContainer"]
-margin_top = 200.0
+[node name="AbilityButtonContainer" type="VBoxContainer" parent="UnitDisplayContainer"]
+margin_top = 240.0
 margin_right = 130.0
-margin_bottom = 220.0
+margin_bottom = 240.0
+
+[node name="EndTurnButton" type="Button" parent="UnitDisplayContainer"]
+margin_top = 244.0
+margin_right = 130.0
+margin_bottom = 264.0
 text = "End Turn"
 
 [connection signal="pressed" from="UnitDisplayContainer/EndTurnButton" to="." method="_on_EndTurnButton_pressed"]
