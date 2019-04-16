@@ -28,8 +28,6 @@ var _path_tile_indicators = []
 
 onready var DungeonMap = get_node("DungeonMap")
 onready var FogOfWar = get_node("FogOfWar")
-onready var Entity = preload("res://scenes/Entity.tscn")
-onready var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
 onready var TileIndicator = preload("res://scenes/TileIndicator.tscn")
 onready var UnitDisplay = preload("res://scenes/UnitDisplay.tscn")
 onready var Log = preload("res://scenes/Log.tscn")

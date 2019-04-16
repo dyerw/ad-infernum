@@ -3,7 +3,7 @@ extends Node
 var Entity = preload("res://scenes/Entity.tscn")
 var Crusader = preload("res://scenes/classes/Crusader.tscn")
 var Priest = preload("res://scenes/classes/Priest.tscn")
-var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
+var EnemyEntity = preload("res://scenes/enemies/EnemyEntity.tscn")
 const Rand = preload("res://utils/Rand.gd")
 const StatusHelper = preload("res://scripts/status/StatusHelper.gd")
 
