@@ -4,6 +4,7 @@ extends Node2D
 var selection_cursor = load("res://selection_cursor.png")
 var cursor = load("res://cursor.png")
 var attack_cursor = load("res://attack_cursor.png")
+var ability_cursor = load("res://images/cursors/ability_cursor.png")
 
 const MapGenUtil = preload("utils/MapGen.gd")
 const Rand = preload("utils/Rand.gd")
@@ -18,6 +19,7 @@ var astar
 var units
 var unit_display
 var game_log
+var targeting_ability
 
 var user_input_blocked = false
 
@@ -109,6 +111,9 @@ func _unhandled_input(event):
 		return
 	
 	if event is InputEventMouseMotion:
+		if targeting_ability:
+			return
+		
 		var map_position = DungeonMap.world_to_map(event.position)
 		
 		# Cursor updates
@@ -143,6 +148,15 @@ func _unhandled_input(event):
 		
 		if map_position.x >= map.width or map_position.y >= map.height:
 			return
+		
+		if targeting_ability:
+			if units.is_unit_at_position(map_position):
+				var target = units.get_unit_at_position(map_position)
+				targeting_ability.use(target)
+				targeting_ability = null
+				_deselect_entity()
+			else:
+				return
 		
 		# Move
 		if units.selected_unit and not units.is_unit_at_position(map_position) \
@@ -189,6 +203,11 @@ func get_movement_cost_for_point(pos: Vector2) -> int:
 
 func log_line(line):
 	game_log.add_line(line)
+
+func targeting_with_ability(ability):
+	delete_movement_path()
+	targeting_ability = ability
+	Input.set_custom_mouse_cursor(ability_cursor)
 
 func _ready():
 	randomize()

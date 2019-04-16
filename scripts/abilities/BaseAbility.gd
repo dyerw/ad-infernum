@@ -1,6 +1,7 @@
 var base_cooldown
 var current_cooldown
 var user_unit
+var targets_self
 
 signal ability_used
 

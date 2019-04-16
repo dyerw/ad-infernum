@@ -83,6 +83,12 @@ func move_along_path(path: Array, pathing_delegate):
 func log_line(line):
 	get_parent().log_line(line)
 
+func heal(healing: int):
+	if self.current_health + healing > self.max_health:
+		self.current_health = self.max_health
+	else:
+		self.current_health += healing
+
 func take_damage(damage: int) -> bool:
 	if damage >= self.current_health:
 		death_audio.play()

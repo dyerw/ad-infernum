@@ -2,6 +2,7 @@ extends Node
 
 var Entity = preload("res://scenes/Entity.tscn")
 var Crusader = preload("res://scenes/classes/Crusader.tscn")
+var Priest = preload("res://scenes/classes/Priest.tscn")
 var EnemyEntity = preload("res://scenes/EnemyEntity.tscn")
 const Rand = preload("res://utils/Rand.gd")
 const StatusHelper = preload("res://scripts/status/StatusHelper.gd")
@@ -71,7 +72,11 @@ func place_player_units_in_rect(rect: Rect2) -> void:
 		positions.remove(positions.find(p))
 
 func _add_player_unit(x, y, name):
-	var e = Crusader.instance()
+	var e
+	if Rand.one_in(2):
+		e = Crusader.instance()
+	else:
+		e = Priest.instance()
 	e.init(x, y, name)
 	_game.add_child(e)
 	e.connect("update_ui", _game, "_update_unit_display", [e])

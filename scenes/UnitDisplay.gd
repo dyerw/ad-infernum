@@ -38,7 +38,10 @@ func render_unit_ability_buttons(unit):
 	for ability in unit.abilities:
 		var ability_button = Button.new()
 		ability_button.text = ability.display_name + " " + String(ability.current_cooldown)
-		ability_button.connect("pressed", ability, "use", [null])
+		if ability.targets_self:
+			ability_button.connect("pressed", ability, "use", [null])
+		else:
+			ability_button.connect("pressed", get_parent(), "targeting_with_ability", [ability])
 		ability_button_container.add_child(ability_button)
 
 func show_entity_details(entity):
